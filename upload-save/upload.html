@@ -393,6 +393,96 @@
         　　　}
         　　　return val;
         }
+
+        // This is the same for all of the below, and
+        // you probably won't need it except for debugging
+        // in most cases.
+        function bytesToHex(bytes) {
+            return Array.from(
+                bytes,
+                byte => byte.toString(16).padStart(2, "0")
+            ).join("");
+        }
+
+        // You almost certainly want UTF-8, which is
+        // now natively supported:
+        function stringToUTF8Bytes(string) {
+            return new TextEncoder().encode(string);
+        }
+
+        // But you might want UTF-16 for some reason.
+        // .charCodeAt(index) will return the underlying
+        // UTF-16 code-units (not code-points!), so you
+        // just need to format them in whichever endian order you want.
+        function stringToUTF16Bytes(string, littleEndian) {
+            const bytes = new Uint8Array(string.length * 2);
+            // Using DataView is the only way to get a specific
+            // endianness.
+            const view = new DataView(bytes.buffer);
+        for (let i = 0; i != string.length; i++) {
+            view.setUint16(i, string.charCodeAt(i), littleEndian);
+        }
+        return bytes;
+        }
+
+        // And you might want UTF-32 in even weirder cases.
+        // Fortunately, iterating a string gives the code
+        // points, which are identical to the UTF-32 encoding,
+        // though you still have the endianess issue.
+        function stringToUTF32Bytes(string, littleEndian) {
+            const codepoints = Array.from(string, c => c.codePointAt(0));
+            const bytes = new Uint8Array(codepoints.length * 4);
+            // Using DataView is the only way to get a specific
+            // endianness.
+            const view = new DataView(bytes.buffer);
+            for (let i = 0; i != codepoints.length; i++) {
+                view.setUint32(i, codepoints[i], littleEndian);
+            }
+            return bytes;
+        }
+
+        function hexToBytes(hex) {
+            const bytes = new Uint8Array(hex.length / 2);
+            for (let i = 0; i !== bytes.length; i++) {
+                bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+            }
+            return bytes;
+        }
+
+        function bytesToStringUTF32(bytes, littleEndian) {
+            const view = new DataView(bytes.buffer);
+            const codepoints = new Uint32Array(view.byteLength / 4);
+            for (let i = 0; i !== codepoints.length; i++) {
+                codepoints[i] = view.getUint32(i * 4, littleEndian);
+            }
+            return String.fromCodePoint(...codepoints);
+        }
+        
+        bytesToHex(stringToUTF8Bytes("hello 漢字 👍"))
+        // "68656c6c6f20e6bca2e5ad9720f09f918d"
+        bytesToHex(stringToUTF16Bytes("hello 漢字 👍", false))
+        // "00680065006c006c006f00206f225b570020d83ddc4d"
+        bytesToHex(stringToUTF16Bytes("hello 漢字 👍", true))
+        // "680065006c006c006f002000226f575b20003dd84ddc"
+        bytesToHex(stringToUTF32Bytes("hello 漢字 👍", false))
+        // "00000068000000650000006c0000006c0000006f0000002000006f2200005b57000000200001f44d"
+        bytesToHex(stringToUTF32Bytes("hello 漢字 👍", true))
+        // "68000000650000006c0000006c0000006f00000020000000226f0000575b0000200000004df40100"
+
+
+        // UTF-8 is default
+        // "hello 漢字 👍"
+        new TextDecoder().decode(hexToBytes("68656c6c6f20e6bca2e5ad9720f09f918d"));
+        // but you can also use:
+        new TextDecoder("UTF-16LE").decode(hexToBytes("680065006c006c006f002000226f575b20003dd84ddc"))
+        new TextDecoder("UTF-16BE").decode(hexToBytes("00680065006c006c006f00206f225b570020d83ddc4d"));
+
+
+        // "hello 漢字 👍"
+        console.log(bytesToStringUTF32(hexToBytes("00000068000000650000006c0000006c0000006f0000002000006f2200005b57000000200001f44d"), false));
+        console.log(bytesToStringUTF32(hexToBytes("68000000650000006c0000006c0000006f00000020000000226f0000575b0000200000004df40100"), true));
+        
+
         /**
          * base64 转blob文件流
          * @method base64AsBlob
