@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>upload-download</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        ul, ol, dl {
+            list-style: none;
+        }
+        .n-hidden {
+            display: none;
+        }
+        .n-show {
+            display: block;
+        }
+        .container {
+            width: 100%;
+            height: 300px;
+            line-height: 300px;
+            text-align: center;
+            font-size: 30px;
+            background-color: skyblue;
+            cursor: pointer;
+        }
+
+        .preview ul::after {
+            content: "";
+            display: block;
+            height: 0;
+            clear: both;
+            visibility: hidden;
+        }
+        .preview ul li {
+            width: 100px;
+            float: left;
+            padding: 10px;
+        }
+        .preview ul li img{
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container" title="上传">文件拖放区域</div>
+    <div class="preview n-hidden"></div>
+    <input class="n-hidden" type="file" name="upload" id="upload" multiple="multiple" accept="image/*">
+
+    <!-- Blob, File, FileReader & URL polyfill -->
+    <script src="./Blob.js"></script>
+    <script>
+        
+        const TYPE = ['JPEG', 'TIFF', 'RAW', 'BMP', 'PNG', 'WEBP'];
+        const SIZE = 3 * 1024 * 1024;
+
+        document.querySelector('#upload').addEventListener('change', fileChange);
+
+        dropFileHandle(document.querySelector('.container'));
+
+        document.querySelector('.container').addEventListener('click', function (e) {
+            console.log('ssss');
+            document.querySelector('#upload').click()
+        })
+        //  上传图片
+        function fileChange(e) {
+            let fileList = [...e.target.files];
+            Promise.all(fileList.map(file => fileAsImg(file))).then(reArr => getPreviewDom(reArr))
+            // saveFile(fileList[0], fileList[0].name.split('.')[0])
+            saveFile('https://desk-fd.zol-img.com.cn/t_s4096x2160c5/g5/M00/0C/0A/ChMkJ1apsSmIODmhACxlzomhVCkAAHxjwPCxV8ALGXm886.jpg')
+
+            
+            if (getAllowTips(fileList)) return alert(getAllowTips(fileList));
+
+            Promise.all(fileList.map(file => imgZip(file, {q: 1}))).then(reArr => {
+                reArr.forEach(data => {
+                    if (data.code === 1) {
+                        console.log(data.data);
+                        // saveFile(data.data.base64, data.data.name.split('.')[0]).then(blob => console.log(blob))
+                    } else {
+                        console.error(data.msg)
+                    }
+                })
+                
+            })
+            
+        }
+
+        function dropFileHandle(container) {
+            /* 可拖动的目标元素会触发事件 */
+            container.addEventListener("drag", function(e) {
+                e.preventDefault(); 
+            }, false);
+            container.addEventListener("dragstart",function(e){  //拖离   
+                e.preventDefault();      
+            })  
+            container.addEventListener("dragleave",function(e){  //拖后放   
+                e.preventDefault();      
+            })  
+            container.addEventListener("dragenter",function(e){  //拖进  
+                e.preventDefault();      
+            })  
+            container.addEventListener("dragover",function(e){  //拖来拖去    
+                e.preventDefault();      
+            })  
+
+            container.addEventListener("drop", function( event ) {
+                // 阻止默认动作（如打开一些元素的链接）
+                event.preventDefault();
+
+                let fileList = [...event.dataTransfer.files];
+                if (getAllowTips(fileList)) return alert(getAllowTips(fileList));
+
+                let promiseArr = fileList.map(file => fileAsImg(file));
+                
+                Promise.all(promiseArr).then(reArr => {
+                    getPreviewDom(reArr)
+                })
+                // saveFile(fileList[0], fileList[0].name.split('.')[0])
+
+            
+            }, false);
+        }
+        
+        /**
+         * 用于创建 URL 的 File 对象、Blob 对象或者 MediaSource 对象并转img,用于前端预览文件
+         * @method fileAsImg
+         * @param {Object} file 文件 [object File] [object Blob] [object MediaSource](视频)
+         * @return {Promise} 返回一个promise对象，成功得到一个dom对象 img
+         */
+        function fileAsImg(file) {
+            let objectURL = window.URL.createObjectURL(file);
+            return loadImg(objectURL).then(data => {
+                console.log(objectURL);
+                window.URL.revokeObjectURL(objectURL);
+                return data.data
+            })
+        }
+
+        /**
+         * 预览图片
+         * @method getPreviewDom
+         * @param {Array} image列表 [img, img]
+         */
+        function getPreviewDom(data) {
+            let parent = document.querySelector('.preview');
+            let ul = document.createElement('ul')
+            data.forEach(img => {
+                let item = document.createElement('li');
+                item.appendChild(img);
+                ul.appendChild(item)
+            })
+            parent.appendChild(ul);
+            parent.classList.remove('n-hidden');
+            parent.classList.add('n-show');
+        }
+
+        function getAllowTips(fileList) {
+            let result = '';
+            const allowCollection = {
+                isEmpty: {
+                    flag: !fileList.length, 
+                    msg: `上传为空`
+                },
+                isAllowType: {
+                    flag: fileList.some(file => TYPE.indexOf(file.type.split('/')[1].toUpperCase()) === -1), 
+                    msg: `仅支持${TYPE.map(type => `image/${type.toLowerCase()}`).join('、')}文件，
+                    ${fileList.filter(file => TYPE.indexOf(file.type.split('/')[1].toUpperCase()) === -1).map(file => `文件 ${file.name}类型为 ${file.type}`).join('、')}`
+                },
+                isAllowSize: {
+                    flag: fileList.some(file => file.size > SIZE), 
+                    msg: `单个文件最大支持${SIZE}Byte, 
+                    ${fileList.filter(file => file.size > SIZE).map(file => `文件${file.name} 大小为 ${file.size}Byte`).join('、')}`
+                },
+            }
+            for (const key in allowCollection) {
+                if (allowCollection.hasOwnProperty(key) && allowCollection[key].flag) {
+                    result = allowCollection[key].msg;
+                    break;
+                }
+            }
+            return result
+        }
+
+        function uploadFile(file, url, {success, error, progress}) {
+            let xhr = createXMLHttp(),
+            msgObj = {progress: 0, finish: false, data: null};
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200){
+                    let res = JSON.parse(xhr.responseText);
+                    msgObj.data = res;
+                    msgObj.progress = 1;
+                    msgObj.finish = true;
+                    success && success(msgObj)
+                } else {
+                    error && error(msgObj)
+                }
+            }
+            xhr.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    msgObj.progress = parseInt(e.loaded / e.total);
+                    progress && progress(msgObj)
+                } else {
+                    console.error('总大小未知时不能计算进程信息')
+                }
+            }
+            xhr.onerror = function (e) {
+                msgObj.progress = -1;
+                msgObj.finish = false;
+                error && error(e);
+            }
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/octet-stream");
+            xhr.send(file);
+            
+            return msgObj
+        }
+
+        
+        /**
+         * 图片大小压缩 
+         * @method  imgZip
+         * @for 所属类名
+         * @param {Object} file 图片文件 [object File] [object Blob]
+         * @param {String} type 输出图片格式，默认值 image/png
+         * @param {Number} q 在指定图片格式为 image/jpeg 或 image/webp的情况下，可以从 0 到 1 的区间内选择图片的质量。如果超出取值范围，将会使用默认值 0.92。其他参数会被忽略
+         * @return {Promise} 返回一个promise对象，成功得到一个对象 {code: 1, data}
+         * 
+         * 注：由于压缩只能image/jpeg 或 image/webp格式的图片生效，如果传入的图片不是这两个格式，则强制转成image/jpeg输出
+         */
+        function imgZip(file, {q, type}) {
+            const functionalType = ['image/jpeg', 'image/webp'];
+
+            return fileAsBase64(file)
+            .then(re => {
+                return loadImg(re.data.url).then(imgData => {
+                    let name = re.data.name,
+                    inputType = re.data.type || ('image/' + name.split('.')[1]),
+                    outputType = (~functionalType.indexOf(type) && type) || (~functionalType.indexOf(inputType) && inputType) || functionalType[0],
+                    outputQ = q || 0.92,
+                    originSize = re.data.originSize,
+                    w = imgData.data.width,
+                    h = imgData.data.height,
+                    base64 = canvasAsBase64(imgAsCanvas(imgData.data), outputType, outputQ),
+                    outputSize = getBase64Content(base64).size;
+
+                    return {
+                        code: 1,
+                        data: {name, inputType, outputType, outputQ, originSize, w, h, base64, outputSize}
+                    }
+                })
+            }).catch(error => error)
+
+        }
+
+        /**
+         * 文件转base64格式
+         * @method fileAsBase64
+         * @param {Object} file 文件 [object File] [object Blob]
+         * @return {Promise} 返回一个promise对象，成功得到一个对象 {code: 1, data}
+         */
+        function fileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (e) {
+                    resolve({
+                        code: 1, 
+                        data: {
+                            name: file.name,
+                            type: file.type,
+                            originSize: file.size,
+                            url: e.target.result
+                        }
+                    })
+                }
+                reader.onerror = function (e) {
+                    reject({code: 0, msg : 'can not readFile'})
+                }
+            })
+        }
+
+        /**
+         * 图片绘制在canvas画布上
+         * @method imgAsCanvas
+         * @param {DOM} img 已加载完毕的图片元素DOM节点,或者一个canvas
+         * @return {DOM} 返回一个绘制好的canvas
+         */
+        function imgAsCanvas(img) {
+            let canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d');
+            canvas.height =  img.height;
+            canvas.width = img.width;
+            context.drawImage(img, 0, 0, img.width, img.height);
+            return canvas
+        }
+
+        /**
+         * canvas转base64
+         * @method canvasAsBase64
+         * @param {DOM} canvas canvas DOM节点
+         * @param {String} type 输出的图片类型，默认值 image/png
+         * @param {Number} q 输出的图片质量，默认值1
+         * @return {DOMString} DataURI 
+         */
+        function canvasAsBase64(canvas, type = 'image/png', q = 1) {
+            return canvas.toDataURL(type, q)
+        }
+
+
+        /**
+         * canvas转Blob
+         * @method canvasAsBlob
+         * @param {DOM} canvas canvas DOM节点
+         * @param {String} type 输出的图片类型，默认值 image/png
+         * @param {Number} q 输出的图片质量，默认值1
+         * @return {Promise} 成功返回Blob 文件对象 
+         */
+
+        function canvasAsBlob(canvas, type = 'image/png', q = 1) {
+            return new Promise((resolve, reject) => {
+                if (!HTMLCanvasElement.prototype.toBlob) {
+                    let dataURI = canvasAsBase64(canvas, type, q);
+                    return resolve(base64AsBlob(dataURI, type))
+                } else {
+                    return canvas.toBlob(resolve, type, q);
+                }
+            })
+        }
+        //  ArrayBuffer => Base64
+        function arrayBufferToBase64(buffer) {
+            var binary = '';
+            var bytes = new Uint8Array(buffer);
+            var len = bytes.byteLength;
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        //  Base64 => ArrayBuffer
+        function base64ToArrayBuffer(base64) {
+            var binary_string = window.atob(base64);
+            var len = binary_string.length;
+            var bytes = new Uint8Array(len);
+            for (var i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        //  buffer => ArrayBuffer
+        function toArrayBuffer(buf) {
+            var ab = new ArrayBuffer(buf.length);
+            var view = new Uint8Array(ab);
+            for (var i = 0; i < buf.length; ++i) {
+                view[i] = buf[i];
+            }
+            return ab;
+        }
+
+        //  ArrayBuffer => buffer
+        function toBuffer(ab) {
+            var buf = new Buffer(ab.byteLength);
+            var view = new Uint8Array(ab);
+            for (var i = 0; i < buf.length; ++i) {
+                buf[i] = view[i];
+            }
+            return buf;
+        }
+
+        //  字符串转换为十六进制
+        //  str => ASCII 字符编码(Number) => 16进制数字
+        function stringToHex(str){
+        　　var val = "", tempHex = '';
+        　　for(var i = 0; i < str.length; i++){
+                tempHex = str.charCodeAt(i).toString(16);
+                val += val === '' ? tempHex : "," + tempHex;
+        　　}
+        　　return val;
+        }
+        //  十六进制转换为字符串
+        //  16进制数字 => str
+        function hexToString(str){
+        　　　var val = "";
+        　　　var arr = str.split(",");
+        　　　for(var i = 0; i < arr.length; i++){
+        　　　　　val += arr[i].fromCharCode(i);
+        　　　}
+        　　　return val;
+        }
+        /**
+         * base64 转blob文件流
+         * @method base64AsBlob
+         * @param {DOMString} dataURI base64文件字符串
+         * @param {String} type 输出的图片类型
+         * @return {Object} 成功返回Blob 文件对象 
+         */
+
+        function base64AsBlob(dataURI, type) {
+            let base64Msg = getBase64Content(dataURI),
+            base64Content = base64Msg.content,
+            realType = type || base64Msg.type,
+            fileSize = base64Msg.size;
+            
+            if (window.atob) {
+                let byteString = window.atob(base64Content),
+                ab = new ArrayBuffer(byteString.length),
+                ia = new Uint8Array(ab);
+
+                for (var i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], { type: realType });
+            } else {
+                let len = base64Content.length
+                , buffer = new Uint8Array(len / 4 * 3 | 0)
+			    , i = 0
+			    , outptr = 0
+			    , last = [0, 0]
+			    , state = 0
+                , save = 0
+                , base64_ranks = new Uint8Array([
+		              62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1
+		            , -1, -1,  0, -1, -1, -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9
+		            , 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
+		            , -1, -1, -1, -1, -1, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
+		            , 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+	            ])
+			    , rank
+			    , code
+                , undef;
+                
+		        while (len--) {
+		        	code = base64Content.charCodeAt(i++);
+		        	rank = base64_ranks[code-43];
+		        	if (rank !== 255 && rank !== undef) {
+		        		last[1] = last[0];
+		        		last[0] = code;
+		        		save = (save << 6) | rank;
+		        		state++;
+		        		if (state === 4) {
+		        			buffer[outptr++] = save >>> 16;
+		        			if (last[1] !== 61 /* padding character */) {
+		        				buffer[outptr++] = save >>> 8;
+		        			}
+		        			if (last[0] !== 61 /* padding character */) {
+		        				buffer[outptr++] = save;
+		        			}
+		        			state = 0;
+		        		}
+		        	}
+                }
+
+                return new Blob([buffer], { type: realType });
+            }
+           
+        }
+
+        /**
+         * 处理base64数据
+         * @method getBase64Content
+         * @param {DOMString} dataURI base64文件字符串
+         * @return {Object} type 文件类型， size文件大小， content文件内容
+         */
+
+        function getBase64Content(dataURI) {
+            const base64Reg = /^data:([\S]+);base64,/;
+            if (!dataURI || !base64Reg.test(dataURI)) return console.error('dataURI is not define or dataURI is not DataURI')
+            return {
+                type: base64Reg.exec(dataURI)[1] || '',
+                size: dataURI.replace(base64Reg, '').length / 4 * 3 | 0,
+                content: dataURI.replace(base64Reg, '')
+            }
+        }
+
+        /**
+         * 异步加载图片
+         * @method loadImg
+         * @param {String} url 图片地址
+         * @param {Boolean} crossOrigin 是否设置跨域
+         * @return {Promise} 成功返回一个加载完的img DOM
+         */
+
+        function loadImg(url, crossOrigin = false) {
+            return new Promise((resolve, reject) => {
+                let img = new Image();
+                crossOrigin && (img.crossOrigin = 'anonymous');
+                img.onload = function (e) {
+                    resolve({code: 1, data: img})
+                }
+                img.onabort = function (e) {
+                    reject({code: 0, msg : 'can not load image'})
+                }
+                img.onerror = function (e) {
+                    reject({code: 0, msg : 'can not load image'})
+                }
+                img.src = url
+            })
+        }
+
+        /**
+         * 通过XMLHttpRequest 异步获取特定类型的响应数据
+         * @method getStaticFile
+         * @param {String} url 资源地址
+         * @param {String} type 
+         *  ""	            将 responseType 设为空字符串与设置为"text"相同， 是默认类型 （实际上是 DOMString）。
+         *  "arraybuffer"	response 是一个包含二进制数据的 JavaScript ArrayBuffer 。
+         *  "blob"	        response 是一个包含二进制数据的 Blob 对象 。
+         *  "document"	    response 是一个 HTML Document 或 XML XMLDocument ，这取决于接收到的数据的 MIME 类型。
+         *  "json"	        response 是一个 JavaScript 对象。这个对象是通过将接收到的数据类型视为 JSON 解析得到的。
+         *  "text"	        response 是包含在 DOMString 对象中的文本。
+         * @return {Promise} 成功返回{code: 1, data}
+         * 
+         * 注：在工作环境(Work Environment)中将responseType的值设置为"document"通常会被忽略. 
+         * 当将responseType设置为一个特定的类型时，你需要确保服务器所返回的类型和你所设置的返回值类型是兼容的。
+         * 那么如果两者类型不兼容呢?
+         * 恭喜你，你会发现服务器返回的数据变成了null，即使服务器返回了数据。
+         * 还有一个要注意的是，给一个同步请求设置responseType会抛出一个InvalidAccessError 的异常
+         */
+
+        function getStaticFile(url, type = '') {
+            return new Promise((resolve, reject) => {
+                let xhr = createXMLHttp();
+                xhr.onload = function () {
+                    if (this.response) {
+                        resolve({code: 1, data: this.response})
+                    } else {
+                        reject({code: 0, data: url, msg: '服务器所返回的类型和你所设置的返回值类型不兼容'})
+                    }
+                }
+                xhr.onerror = function (error) {
+                    reject(error)
+                }
+                xhr.open('GET', url, true);
+                xhr.responseType = type;
+                xhr.send();
+            })
+        }
+
+        
+        /**
+         * 浏览器异步下载文件
+         * @method saveFile
+         * @param {File|Blob|DOMString|String} file 文件[object File] [object Blob] DataURI 或者文件地址url
+         * @param {String} name 文件名称
+         * @param {String} fileType 文件类型 image/png image/jpeg
+         * @return {Promise} 成功返回一个Blob对象
+         */
+        function saveFile(file, name, fileType) {
+            const base64Reg = /^data:([\S]+);base64,/,
+            //  ie ie11 edge
+            regex = /(?:ms|\()(ie)\s([\w\.]+)|trident|(edge|edgios|edga|edg)/i,
+            isDataURI = base64Reg.test(file),
+            ieKit = regex.test(window.navigator.userAgent),
+            type = ({}).toString.call(file),
+            isBlob = type === "[object Blob]",
+            isFile = type === "[object File]";
+            
+            console.log(type, isBlob, isFile);
+            let filename = name || 'download';
+
+            let getDataPromise = new Promise((resolve, reject) => {
+                let result = (isBlob || isFile) ? 
+                file : 
+                isDataURI ? base64AsBlob(file) : getStaticFile(file, 'blob').then(data => data.data);
+
+                return resolve(result)
+            })
+
+            return getDataPromise.then(data => {
+                filename += '.' + (data.type ? data.type.split('/')[1] : 'png');
+
+                if (ieKit) {
+                    navigator.msSaveBlob && navigator.msSaveBlob(data, filename)
+                } else {
+                    let objectURL = window.URL.createObjectURL(data),
+                    save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a'),
+                    event = document.createEvent('MouseEvents');
+
+                    save_link.href = objectURL;
+                    save_link.download = filename;
+                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    save_link.dispatchEvent(event);
+
+                    window.URL.revokeObjectURL(objectURL);
+                }
+                return data
+            }).catch(console.error)
+        }
+
+        /**
+         * 兼容创建XMLHttpRquest对象
+         * @method createXMLHttp
+         * @return {Object} xhr
+         */
+
+        function createXMLHttp() {
+            let xmlhttp;
+			try {
+				xmlhttp = new XMLHttpRequest(); //尝试创建 XMLHttpRequest 对象，除 IE 外的浏览器都支持这个方法。
+			} catch (e) {
+				try {
+					xmlhttp = ActiveXobject('Msxml12.XMLHTTP'); //使用较新版本的 IE 创建 IE 兼容的对象（Msxml2.XMLHTTP）。
+				} catch (ex) {
+					try {
+						xmlhttp = ActiveXobject('Microsoft.XMLHTTP'); //使用较老版本的 IE 创建 IE 兼容的对象（Microsoft.XMLHTTP）。
+					} catch (failed) {
+						xmlhttp = false; //如果失败了还保持false
+					}
+				}
+			}
+			return xmlhttp;
+        }
+
+    </script>
+</body>
+</html>
