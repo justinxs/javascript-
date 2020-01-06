@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>js运算符与优先级</title>
+    <style>
+        table {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            border-collapse: collapse;
+            border: solid #e0e0dc;
+            border-width: 1px 0 0 1px;
+            background: #fff;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #eaeef2;
+            border-color: rgba(212,221,228,.5);
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        th {
+            text-align: left;
+            background: #eaeef2;
+            background: rgba(212,221,228,.5);
+            border: 1px solid #d4dde4;
+            padding: 5px;
+        }
+        td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <table class="fullwidth-table">
+        <tbody>
+         <tr>
+          <th>优先级</th>
+          <th>运算类型</th>
+          <th>关联性</th>
+          <th>运算符</th>
+         </tr>
+         <tr>
+          <td>20</td>
+          <td><a href="/zh-CN/docs/Web/JavaScript/Reference/Operators/Grouping" title="圆括号运算符 ( )&nbsp;用于控制表达式中的运算优先级。"><code>圆括号</code></a></td>
+          <td>n/a（不相关）</td>
+          <td><code>( … )</code></td>
+         </tr>
+         <tr>
+          <td rowspan="5">19</td>
+          <td><a href="/zh-CN/docs/Web/JavaScript/Reference/Operators/Property_Accessors#点符号表示法" title="属性访问器提供了两种方式用于访问一个对象的属性，它们分别是点号和方括号。"><code>成员访问</code></a></td>
+          <td>从左到右</td>
+          <td><code>… . …</code></td>
+         </tr>
+         <tr>
+          <td><a href="/zh-CN/docs/Web/JavaScript/Reference/Operators/Property_Accessors#括号表示法" title="属性访问器提供了两种方式用于访问一个对象的属性，它们分别是点号和方括号。"><code>需计算的成员访问</code></a></td>
+          <td>从左到右</td>
+          <td><code>… [ … ]</code></td>
+         </tr>
+         <tr>
+          <td><a href="/zh-CN/docs/Web/JavaScript/Reference/Operators/new" title="new&nbsp;运算符创建一个用户定义的对象类型的实例或具有构造函数的内置对象的实例。"><code>new</code></a> (带参数列表)</td>
+          <td>n/a</td>
+          <td><code>new … ( … )</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Functions" title="JavaScript/Reference/Operators/Special_Operators/function_call">函数调用</a></td>
+          <td>从左到右</td>
+          <td><code>… (&nbsp;<var>…&nbsp;</var>)</code></td>
+         </tr>
+         <tr>
+          <td><a class="new" rel="nofollow" title="该页面尚未创建。">可选链（Optional chaining）</a></td>
+          <td>从左到右</td>
+          <td><code>?.</code></td>
+         </tr>
+         <tr>
+          <td rowspan="1">18</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new" title="JavaScript/Reference/Operators/Special_Operators/new_Operator">new</a>&nbsp;(无参数列表)</td>
+          <td>从右到左</td>
+          <td><code>new …</code></td>
+         </tr>
+         <tr>
+          <td rowspan="2">17</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Increment" title="JavaScript/Reference/Operators/Arithmetic_Operators">后置递增</a>(运算符在后)</td>
+          <td colspan="1" rowspan="2">n/a<br>
+           &nbsp;</td>
+          <td><code>… ++</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Decrement" title="JavaScript/Reference/Operators/Arithmetic_Operators">后置递减</a>(运算符在后)</td>
+          <td><code>… --</code></td>
+         </tr>
+         <tr>
+          <td colspan="1" rowspan="10">16</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Logical_Operators#Logical_NOT">逻辑非</a></td>
+          <td colspan="1" rowspan="10">从右到左</td>
+          <td><code>! …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_NOT" title="JavaScript/Reference/Operators/Bitwise_Operators">按位非</a></td>
+          <td><code>~ …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus" title="JavaScript/Reference/Operators/Arithmetic_Operators">一元加法</a></td>
+          <td><code>+ …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_negation" title="JavaScript/Reference/Operators/Arithmetic_Operators">一元减法</a></td>
+          <td><code>- …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Increment" title="JavaScript/Reference/Operators/Arithmetic_Operators">前置递增</a></td>
+          <td><code>++ …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Decrement" title="JavaScript/Reference/Operators/Arithmetic_Operators">前置递减</a></td>
+          <td><code>-- …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof" title="JavaScript/Reference/Operators/Special_Operators/typeof_Operator">typeof</a></td>
+          <td><code>typeof …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/void" title="JavaScript/Reference/Operators/Special_Operators/void_Operator">void</a></td>
+          <td><code>void …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/delete" title="JavaScript/Reference/Operators/Special_Operators/delete_Operator">delete</a></td>
+          <td><code>delete …</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await">await</a></td>
+          <td><code>await …</code></td>
+         </tr>
+         <tr>
+          <td>15</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Exponentiation" title="JavaScript/Reference/Operators/Arithmetic_Operators">幂</a></td>
+          <td>从右到左</td>
+          <td><code>…&nbsp;**&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td rowspan="3">14</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Multiplication" title="JavaScript/Reference/Operators/Arithmetic_Operators">乘法</a></td>
+          <td colspan="1" rowspan="3">从左到右<br>
+           &nbsp;</td>
+          <td><code>… *&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Division" title="JavaScript/Reference/Operators/Arithmetic_Operators">除法</a></td>
+          <td><code>… /&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Remainder" title="JavaScript/Reference/Operators/Arithmetic_Operators">取模</a></td>
+          <td><code>… %&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td rowspan="2">13</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Addition" title="JavaScript/Reference/Operators/Arithmetic_Operators">加法</a></td>
+          <td colspan="1" rowspan="2">从左到右<br>
+           &nbsp;</td>
+          <td><code>… +&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Subtraction" title="JavaScript/Reference/Operators/Arithmetic_Operators">减法</a></td>
+          <td><code>… -&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td rowspan="3">12</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators" title="JavaScript/Reference/Operators/Bitwise_Operators">按位左移</a></td>
+          <td colspan="1" rowspan="3">从左到右</td>
+          <td><code>… &lt;&lt;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators" title="JavaScript/Reference/Operators/Bitwise_Operators">按位右移</a></td>
+          <td><code>… &gt;&gt;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators" title="JavaScript/Reference/Operators/Bitwise_Operators">无符号右移</a></td>
+          <td><code>… &gt;&gt;&gt;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td rowspan="6">11</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Less_than_operator" title="JavaScript/Reference/Operators/Comparison_Operators">小于</a></td>
+          <td colspan="1" rowspan="6">从左到右</td>
+          <td><code>… &lt;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Less_than__or_equal_operator" title="JavaScript/Reference/Operators/Comparison_Operators">小于等于</a></td>
+          <td><code>… &lt;=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Greater_than_operator" title="JavaScript/Reference/Operators/Comparison_Operators">大于</a></td>
+          <td><code>… &gt;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Greater_than_or_equal_operator" title="JavaScript/Reference/Operators/Comparison_Operators">大于等于</a></td>
+          <td><code>… &gt;=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in" title="JavaScript/Reference/Operators/Special_Operators/in_Operator">in</a></td>
+          <td><code>… in&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/instanceof" title="JavaScript/Reference/Operators/Special_Operators/instanceof_Operator">instanceof</a></td>
+          <td><code>… instanceof&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td rowspan="4">10</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Equality" title="JavaScript/Reference/Operators/Comparison_Operators">等号</a></td>
+          <td colspan="1" rowspan="4">从左到右<br>
+           &nbsp;</td>
+          <td><code>… ==&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Inequality" title="JavaScript/Reference/Operators/Comparison_Operators">非等号</a></td>
+          <td><code>… !=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Identity" title="JavaScript/Reference/Operators/Comparison_Operators">全等号</a></td>
+          <td><code>… ===&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Nonidentity" title="JavaScript/Reference/Operators/Comparison_Operators">非全等号</a></td>
+          <td><code>… !==&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>9</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_AND" title="JavaScript/Reference/Operators/Bitwise_Operators">按位与</a></td>
+          <td>从左到右</td>
+          <td><code>… &amp;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>8</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_XOR" title="JavaScript/Reference/Operators/Bitwise_Operators">按位异或</a></td>
+          <td>从左到右</td>
+          <td><code>… ^&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>7</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Bitwise_OR" title="JavaScript/Reference/Operators/Bitwise_Operators">按位或</a></td>
+          <td>从左到右</td>
+          <td><code>… |&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>6</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Logical_Operators#Logical_AND" title="JavaScript/Reference/Operators/Logical_Operators">逻辑与</a></td>
+          <td>从左到右</td>
+          <td><code>… &amp;&amp;&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>5</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Logical_Operators#Logical_OR" title="JavaScript/Reference/Operators/Logical_Operators">逻辑或</a></td>
+          <td>从左到右</td>
+          <td><code>… ||&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>4</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Conditional_Operator" title="JavaScript/Reference/Operators/Special_Operators/Conditional_Operator">条件运算符</a></td>
+          <td>从右到左</td>
+          <td><code>… ? … : …</code></td>
+         </tr>
+         <tr>
+          <td rowspan="12">3</td>
+          <td rowspan="12"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Assignment_Operators" title="JavaScript/Reference/Operators/Assignment_Operators">赋值</a></td>
+          <td rowspan="12">从右到左</td>
+          <td><code>… =&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… +=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… -=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… *=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… /=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… %=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… &lt;&lt;=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… &gt;&gt;=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… &gt;&gt;&gt;=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… &amp;=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… ^=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><code>… |=&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td colspan="1" rowspan="2">2</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/yield" title="JavaScript/Reference/Operators/yield">yield</a></td>
+          <td colspan="1" rowspan="2">从右到左</td>
+          <td><code>yield&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/yield*" title="JavaScript/Reference/Operators/yield">yield*</a></td>
+          <td><code>yield*&nbsp;…</code></td>
+         </tr>
+         <tr>
+          <td>1</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Spread_operator" title="JavaScript/Reference/Operators/Spread_operator">展开运算符</a></td>
+          <td>n/a</td>
+          <td><code>...</code>&nbsp;…</td>
+         </tr>
+         <tr>
+          <td>0</td>
+          <td><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comma_Operator" title="JavaScript/Reference/Operators/Comma_Operator">逗号</a></td>
+          <td>从左到右</td>
+          <td><code>… ,&nbsp;…</code></td>
+         </tr>
+        </tbody>
+       </table>
+    <script>
+        //  JS数据类型检测
+        typeof 1 // 'number'
+        typeof '1' // 'string'
+        typeof undefined // 'undefined'
+        typeof true // 'boolean'
+        typeof Symbol() // 'symbol'
+        typeof null //  'object'
+
+        typeof [] // 'object'
+        typeof {} // 'object'
+        typeof console.log // 'function'
+
+        const Person = function() {}
+        const p1 = new Person()
+        p1 instanceof Person // true
+
+        var str1 = 'hello world'
+        str1 instanceof String // false
+
+        var str2 = new String('hello world')
+        str2 instanceof String // true
+
+        class PrimitiveNumber {
+            static [Symbol.hasInstance](x) {
+                return typeof x === 'number'
+            }
+        }
+        console.log(111 instanceof PrimitiveNumber) // true
+
+        function myInstanceof(left, right) {
+            //基本数据类型直接返回false
+            if(typeof left !== 'object' || left === null) return false;
+            //getProtypeOf是Object对象自带的一个方法，能够拿到参数的原型对象
+            let proto = Object.getPrototypeOf(left);
+            while(true) {
+                //查找到尽头，还没找到
+                if(proto == null) return false;
+                //找到相同的原型对象
+                if(proto == right.prototype) return true;
+                proto = Object.getPrototypeOf(proto);
+            }
+        }
+
+        console.log(myInstanceof("111", String)); //false
+        console.log(myInstanceof(new String("111"), String));//true
+
+        // Object.is() 方法判断两个值是否是相同的值 与 === 运算符的判定方式也不一样。=== 运算符（和== 运算符）将数字值 -0 和 +0 视为相等，并认为 Number.NaN 不等于 NaN
+        Object.is(0, -0);            // false
+        Object.is(0, +0);            // true
+        Object.is(-0, -0);           // true
+        Object.is(NaN, 0/0);         // true
+        if (!Object.is) {
+            Object.is = function(x, y) {
+                // SameValue algorithm
+                if (x === y) { // Steps 1-5, 7-10
+                // Steps 6.b-6.e: +0 != -0
+                return x !== 0 || 1 / x === 1 / y;
+                } else {
+                // Step 6.a: NaN == NaN
+                return x !== x && y !== y;
+                }
+            };
+        }
+
+
+        //  JS数据类型转换
+
+        //  js运算符与优先级
+        // 赋值运算符(Assignment operators)
+        // 比较运算符(Comparison operators)
+        // 算数运算符(Arithmetic operators)
+        // 位运算符(Bitwise operators)
+        // 逻辑运算符(Logical operators)
+        // 字符串运算符(String operators)
+        // 条件（三元）运算符(Conditional operator)
+        // 逗号运算符(Comma operator)
+        // 一元运算符(Unary operators)
+        // 关系运算符(Relational operator)
+
+        //  赋值运算符--将它右边操作数的值赋给它左边的操作数
+        // 赋值	                x = y	x = y
+        // 加法赋值	            x += y	x = x + y
+        // 减法赋值	            x -= y	x = x - y
+        // 乘法赋值	            x *= y	x = x * y
+        // 除法赋值	            x /= y	x = x / y
+        // 求余赋值	            x %= y	x = x % y
+        // 求幂赋值	            x **= y	x = x ** y
+        // 左移位赋值	        x <<= y	x = x << y
+        // 右移位赋值	        x >>= y	x = x >> y
+        // 无符号右移位赋值	     x >>>= y	x = x >>> y
+        // 按位与赋值	        x &= y	x = x & y
+        // 按位异或赋值	        x ^= y	x = x ^ y
+        // 按位或赋值	        x |= y	x = x | y
+        // 解构赋值语法是一个能从数组或对象对应的数组结构或对象字面量里提取数 
+        (function () {
+            var fooArr = ["one", "two", "three"];
+            var fooObj = {"four": 4, "five": 5, "six": 6};
+            var [one, two, three] = fooArr;
+            var {four, five, six} = fooObj;
+            console.log(one, two, three, four, five, six);
+        })();
+        
+
+        //  比较运算符比较它的操作数并返回一个基于表达式是否为真的逻辑值。操作数可以是数字，字符串，逻辑，对象值。字符串比较是基于标准的字典顺序，使用Unicode值
+
+        //  JavaScript 有两种比较方式：严格比较运算符和转换类型比较运算符。
+        //  对于严格比较运算符（===）来说，仅当两个操作数的类型相同且值相等为 true，
+        //  而对于被广泛使用的比较运算符（==）来说，会在进行比较之前，将两个操作数转换成相同的类型。
+        //  对于关系运算符（比如 <=）来说，会先将操作数转为原始值，使它们类型相同，再进行比较运算。
+        //  字符串比较则是使用基于标准字典的 Unicode 值来进行比较的。
+
+        //  当比较运算涉及类型转换时 (i.e., non–strict comparison), JavaScript 会按以下规则对字符串，数字，布尔或对象类型的操作数进行操作:
+        // 当比较数字和字符串时，字符串会转换成数字值。 JavaScript 尝试将数字字面量转换为数字类型的值。 首先, 一个数学上的值会从数字字面量中衍生出来，然后这个值将被转为一个最接近的Number类型的值。
+        // 如果其中一个操作数为布尔类型，那么布尔操作数如果为true，那么会转换为1，如果为false，会转换为整数0，即0。
+        // 如果一个对象与数字或字符串相比较，JavaScript会尝试返回对象的默认值。操作符会尝试通过方法valueOf和toString将对象转换为其原始值（一个字符串或数字类型的值）。如果尝试转换失败，会产生一个运行时错误。
+        // 注意：当且仅当与原始值比较时，对象会被转换为原始值。当两个操作数均为对象时，它们作为对象进行比较，仅当它们引用相同对象时返回true。
+        // null 和 undefined 是相等的。要比较相等性之前，不能将 null 和 undefined 转换成其他任何值。
+        // 如果有一个操作数 NaN ，则相等操作符返回 false ，而不相等操作符返回 true 。重要提示: NaN 不等于 NaN 
+
+        // 等于 Equal (==)	                    如果两边操作数相等时返回true。
+        // 不等于 Not equal (!=)	            如果两边操作数不相等时返回true	
+        // 全等 Strict equal (===)	            两边操作数相等且类型相同时返回true。 参见 Object.is and sameness in JS.	
+        // 不全等 Strict not equal (!==)	    两边操作数不相等或类型不同时返回true。	
+        // 大于 Greater than (>)	            左边的操作数大于右边的操作数返回true	
+        // 大于等于 Greater than or equal (>=)	左边的操作数大于或等于右边的操作数返回true	
+        // 小于 Less than (<)	                左边的操作数小于右边的操作数返回true	
+        // 小于等于 Less than or equal (<=)	    左边的操作数小于或等于右边的操作数返回true	
+
+        //  比较运算隐式转化规则：在进行比较之前，将两个操作数转换成相同的类型
+        //  Number  比较 String/Boolean/*, String/Boolean/* => Number
+        //  Boolean 比较 *, Boolean => Number 比较 *,  * => Number
+        //  Object  比较 not Object, Object => valueOf和toString => String/Nunber 比较 not Object
+
+        (function () {
+            null == undefined   // true
+            NaN == NaN          // false
+            5 == NaN            // false
+            NaN == NaN          // false
+            NaN != NaN          // true
+            false == 0          // true
+            true == 1           // true
+            true == 2           // false
+            undefined == 0      // false
+            null == 0           // false
+
+            var a = new String('foo');
+            var b = new String('foo');
+            "Brick" < ' alphabec';          // true  B < a  b > a
+            'foo' === 'foo'                 // true  
+            a == b                          // false 2个不同的对象
+            a === b                         // false 2个不同的对象
+            a == 'foo'                      // true  a => String
+        }());
+
+
+
+        //  算术运算符使用数值(字面量或者变量)作为操作数并返回一个数值
+
+        // 标准的算术运算符（+， - ，* /）
+        // 求余(%)	        二元运算符. 返回相除之后的余数.	12 % 5 返回 2。
+        // 自增(++)	        一元运算符. 将操作数的值加一. 如果放在操作数前面 (++x), 则返回加一后的值; 如果放在操作数后面 (x++), 则返回操作数原值,然后再将操作数加一.
+        // 自减(--)	        一元运算符. 将操作数的值减一. 前后缀两种用法的返回值类似自增运算符.
+        // 一元负值符(-)	一元运算符,返回操作数的负值.
+        // 一元正值符(+)    一元运算符, 如果操作数在之前不是number，试图将其转换为number
+        // 指数运算符(**)	计算 base(底数) 的 exponent(指数)次方	2 ** 3 => 8. 10 ** -1 => 0.1.
+
+
+        //  位运算符将它的操作数视为32位元的二进制串（0和1组成）而非十进制八进制或十六进制数。
+        //  例如：十进制数字9用二进制表示为1001，位运算符就是在这个二进制表示上执行运算，但是返回结果是标准的JavaScript数值。
+
+        // 按位与 AND	    a & b	在a,b的位表示中，每一个对应的位都为1则返回1， 否则返回0.    15 & 9 => 1111 & 1001 => 1001 => 9
+        // 按位或 OR	    a | b	在a,b的位表示中，每一个对应的位，只要有一个为1则返回1， 否则返回0.  15 | 9 => 1111 | 1001 => 1111 => 15
+        // 按位异或 XOR	    a ^ b	在a,b的位表示中，每一个对应的位，两个不相同则返回1，相同则返回0.    15 ^ 9 => 1111 ^ 1001 => 0110 => 6
+        // 按位非 NOT	    ~ a	反转被操作数的位。(~a => -(a + 1));  ~15 => ~00000000...00001111 => 11111111...11110000  => -16 (-(15 + 1))
+        // 左移 shift	    a << b	将a的二进制串向左移动b位,右边移入0. 9<<2 => 1001 左移位2bit => 100100 => 36
+        // 算术右移	        a >> b	把a的二进制表示向右移动b位，丢弃被移出的所有位.(译注:算术右移左边空出的位是根据最高位是0和1来进行填充的)    9>>2 => 1001右移位2bit => 10 => 2
+        // 无符号右移       a >>> b	把a的二进制表示向右移动b位，丢弃被移出的所有位，并把左边空出的位都填充为0(左边空出位用0填充)    19>>>2 => 10011右移位2bit => 100 => 4
+
+
+        
+
+        //  逻辑运算符常用于布尔（逻辑）值之间; 当操作数都是布尔值时，返回值也是布尔值。 
+        //  不过实际上&&和||返回的是一个特定的操作数的值，所以当它用于非布尔值的时候，返回值就可能是非布尔值
+
+        // 逻辑与 (&&)	expr1 && expr2; expr1 = falsy => return expr1;expr1 = truly => return expr2 (找假)
+        // 逻辑或 (||)	expr1 || expr2; expr1 = falsy => return expr2;expr1 = truly => return expr1 (找真)
+        // 逻辑非 (!)	!expr;  !Boolean(expr)
+
+
+
+        //  运算符优先级
+
+    </script>
+
+</body>
+</html>
