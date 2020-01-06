@@ -10,6 +10,33 @@
 
 <body>
     <script>
+        //  call
+        Function.prototype.call = function (context) {
+            let context = context || window;
+            let fn = Symbol('fn');
+            context.fn = this;
+
+            let args = [];
+            for(let i = 1, len = arguments.length; i < len; i++) {
+                args.push('arguments[' + i + ']');
+            }
+
+            let result = eval('context.fn(' + args +')');
+
+            delete context.fn
+            return result;
+        }
+        
+        //  apply
+        Function.prototype.apply = function (context, args) {
+            let context = context || window;
+            context.fn = this;
+            let result = eval('context.fn(...args)');
+
+            delete context.fn
+            return result;
+        }
+
         var x = 9; // 在浏览器中，this指向全局的 "window" 对象
         var obj = {
             x: 81,
