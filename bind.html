@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        var x = 9; // 在浏览器中，this指向全局的 "window" 对象
+        var obj = {
+            x: 81,
+            getX: function (y) {
+                return y ? y : this.x;
+            }
+        };
+
+        console.log(obj.getX());
+
+        var retrieveX = obj.getX;
+        console.log(retrieveX());
+        // 返回9 - 因为函数是在全局作用域中调用的
+
+        // 创建一个新函数，把 'this' 绑定到 module 对象
+        // 新手可能会将全局变量 x 与 module 的属性 x 混淆
+        var boundGetX = retrieveX.bind(obj);
+        console.log(boundGetX());
+
+        //  无法再修改this指向了
+        console.log(boundGetX.call(this), boundGetX.apply(this), boundGetX.bind);
+
+        console.log(boundGetX.bind(window)());
+
+
+        Function.prototype.bind = function (oThis) {
+            console.log(this,oThis, 'xiugai');
+            if (typeof this !== 'function') {
+                // closest thing possible to the ECMAScript 5
+                // internal IsCallable function
+                throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+            }
+
+            var aArgs = Array.prototype.slice.call(arguments, 1),
+                fToBind = this,
+                fNOP = function () {},
+                fBound = function () {
+                    // this instanceof fBound === true时,说明返回的fBound被当做new的构造函数调用
+                    return fToBind.apply(this instanceof fBound ?
+                        this :
+                        oThis,
+                        // 获取调用时(fBound)的传参.bind 返回的函数入参往往是这么传递的
+                        aArgs.concat(Array.prototype.slice.call(arguments)));
+                };
+
+            // 维护原型关系
+            
+            if (this.prototype) {
+                // Function.prototype doesn't have a prototype property
+                fNOP.prototype = this.prototype;
+            }
+            // 下行的代码使fBound.prototype是fNOP的实例,因此
+            // 返回的fBound若作为new的构造函数,new生成的新对象作为this传入fBound,新对象的__proto__就是fNOP的实例
+            fBound.prototype = new fNOP();
+            console.log(this.prototype, fBound.prototype);
+            return fBound;
+        };
+
+        var b = obj.getX;
+ 
+
+
+
+
+        function sdadsas() {
+            var re = (function () {
+                console.log(this, '1');
+                return (function () {
+                            console.log(this, '2');
+                            return b.apply(obj)
+                        }).apply(window)
+            }).apply(obj)
+
+            console.log(re);
+        };
+        sdadsas()
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script src="./ua-parser.js"></script>
+    <script>
+        let info = UAParser(navigator.userAgent);
+        console.log(info);
+
+
+        var regex1 = RegExp('foo*', 'g');
+        var str1 = 'table football, foosball';
+        var array1;
+
+        // while ((array1 = regex1.exec(str1)) !== null) {
+        //     console.log(`Found ${array1[0]}. Next starts at ${regex1.lastIndex}.`);
+        //     // expected output: "Found foo. Next starts at 9."
+        //     // expected output: "Found foo. Next starts at 19."
+        // }
+
+        array1 = regex1.exec(str1);
+        console.log(array1);
+
+        var re = /quick\s(brown).+?(jumps)/ig;
+        var result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
+        console.log(result, re.lastIndex);
+
+
+        let arr1 = /(trident).+rv[:\s]([\w\.]+).+like\sgecko/i.exec(navigator.userAgent);
+        let arr2 = /(edge|edgios|edga|edg)\/((\d+)?[\w\.]+)/i.exec(navigator.userAgent);
+        let arr3 = /(chrome|omniweb|arora|[tizenoka]{5}\s?browser)\/v?([\w\.]+)/i.exec(navigator.userAgent);
+
+        // console.log(arr1,arr2,arr2[1], arr3);
+
+
+
+        var re1 = /(\w+)\s(\w+)/;
+        var str1 = 'John Smith';
+        console.log(str1.replace(re1, '$2, $1'));
+        console.log(str1.replace(re1, function (match, p1, p2, offset, str, NamedCaptureGroup) {
+            console.log(match);
+            console.log(p1);
+            console.log(p2);
+            console.log(offset);
+            console.log(str);
+            console.log(NamedCaptureGroup);
+            return `${p2},${p1}`
+        }));
+        console.log(str1.match(re1));
+
+        console.log(RegExp.$1);
+        console.log(RegExp.$2);
+
+        console.log('常用的正则');
+
+        let normalReg = {
+            //  邮箱
+            isMail: [/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
+                /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/
+            ],
+            //  手机号
+            isMobile: [/^(13[0-9]|14[5-9]|15[012356789]|166|17[0-8]|18[0-9]|19[8-9])[0-9]{8}$/],
+            //  固话
+            isTel: [/^(\+\d{2}-)?0\d{2,3}-\d{7,8}$/, /(\(\d{3,4}\)|\d{3,4}-|\s)?\d{8}/],
+            //  qq
+            isQQ: [/^[1-9][0-9]{4,10}$/],
+            //  微信
+            isWeixin: [/^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$/],
+            //  字符串为空
+            isEmpty: [/^\s*$/],
+            //  纯中文
+            isCn: [/^[\u4e00-\u9fa5]+$/],
+            //  英文字母
+            isEn: [/^[a-z]+$/i],
+            //  字母和数字
+            isEnAndNum: [/^[a-z0-9]+$/i],
+            //  特殊字符:["'<>%;)(&+]+-!！@#$~
+            isSchar: [/["'<>%;)(&+]+-!！@#$~/],
+            //  url
+            isUrl: [/^(https|http)?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i],
+            //  域名
+            isDomain: [/^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/],
+            //  ip
+            isIP: [/\d+\.\d+\.\d+\.\d+/],
+
+        }
+
+        // let actionKey = {
+        //     'getPlanName': item.planName, 
+        //     'eventNameFun': item.eventName, 
+        //     'chooseAction': item.actionName, 
+        //     'ruleNameFun': item.ruleName
+        // }
+        // Object.keys(actionKey).forEach(key => actionKey[key] && this[key](actionKey[key]))
+        let addConnectParams = {},getAllparams = {paramDesc1: 1, paramDesc2: 2,paramDesc3: 3,paramDesc4: 4,paramDesc5: 5,paramDesc6: 6,paramDesc7: 7,paramDesc8: 8,paramDesc9: 9,paramDesc10: 10,}
+
+        let res = Array.from({length: 10}, (v, i) => {
+            return getAllparams['paramDesc' + (i + 1)]
+        })
+
+        console.log(res);
+
+        function ssssss() {
+            let arr = [1, 2,3,4,5,5,6]
+            arr.forEach(item => item)
+            console.log(arr);
+        }
+        ssssss()
+    </script>
+</body>
+
+</html>

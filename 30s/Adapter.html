@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        //  返回一个指定参数个数的处理函数
+
+        const ary = (fn, n) => (...args) => fn(...args.slice(0, n));
+
+        const firstTwoMax = ary(Math.max, 2);
+        [
+            [2, 6, 'a'],
+            [8, 4, 6],
+            [10]
+        ].map(x => firstTwoMax(...x)); // [6, 8, 10]
+
+
+
+
+        /**  
+         * 传方法名和回调函数，返回一个处理后的数据
+         * @param {String} key - context的方法
+         * @param {Function} args - 回调
+         */
+        const call = (key, ...args) => context => context[key](...args);
+
+        Promise.resolve([1, 2, 3])
+            .then(call('map', x => 2 * x))
+            .then(console.log); // [ 2, 4, 6 ]
+
+        const map = call.bind(null, 'map');
+        Promise.resolve([1, 2, 3])
+            .then(map(x => 2 * x))
+            .then(console.log); // [ 2, 4, 6 ]
+
+        console.log(call('map', x => 2 * x)([2, 3, 4]), 'map * 2');
+
+
+        /**
+         * 传入回调返回处理函数  
+         * @param {Function} fn 回调  
+         */
+
+        const collectInto = fn => (...args) => fn(args);
+
+        const Pall = collectInto(Promise.all.bind(Promise));
+        let p1 = Promise.resolve(1);
+        let p2 = Promise.resolve(2);
+        let p3 = new Promise(resolve => setTimeout(resolve, 2000, 3));
+        Pall(p1, p2, p3).then(console.log); // [1, 2, 3] (after about 2 seconds)
+
+
+        /**
+         * 参数头尾交换顺序
+         * @param {} 
+         */
+        const flip = fn => (first, ...rest) => fn(...rest, first);
+
+        let a = {
+            name: 'John Smith'
+        };
+        let b = {};
+        const mergeFrom = flip(Object.assign);
+        let mergePerson = mergeFrom.bind(null, a);
+
+        console.log(mergePerson(b), b, '交换头尾参数');
+        b = {};
+        console.log(Object.assign(a, b), b, '未交换');
+
+
+        /**
+         * 传入回调数组返回一个被每个回调处理后的结果数组
+         * @param {Function} fns 回调 
+         * @param {} args 要处理的数据 
+         */
+        const over = (...fns) => (...args) => fns.map(fn => fn.apply(null, args));
+
+        const minMax = over(Math.min, Math.max, (...args) => args.reduce((a, b) => a + b), (...args) => args.sort((a,
+            b) => b - a), (...args) => args.map(x => 2 * x));
+        console.log(minMax(1, 2, 3, 4, 5), '最小-最大值-和-倒序-乘2');
+
+
+        //  传入处理函数数组，每个函数处理对应的数据
+
+        const overArgs = (fn, transforms) => (...args) => fn(...args.map((val, i) => transforms[i](val)));
+
+        const square = n => n * n;
+        const double = n => n * 2;
+        const fn = overArgs((x, y) => [x, y], [square, double]);
+        fn(9, 3); // [81, 6]
+
+
+        //  异步管道函数
+        const pipeAsyncFunctions = (...fns) => arg => fns.reduce((p, f) => p.then(f), Promise.resolve(arg));
+
+        const sum = pipeAsyncFunctions(
+            x => x + 1,
+            x => new Promise(resolve => setTimeout(() => resolve(x + 2), 1000)),
+            x => x + 3,
+            async x => (await x) + 4
+        );
+        (async () => {
+            console.log(await sum(5)); // 15 (after one second)
+        })();
+
+
+        const pipeFunctions = (...fns) => fns.reduce((f, g) => (...args) => g(f(...args)));
+
+        const add5 = x => x + 5;
+        const multiply = (x, y) => x * y;
+        const reset = x => {
+            let pre = x - 5;
+            const numList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            return numList.filter((n, i, self) => {
+
+                for (let index = 0; index < self.length; index++) {
+                    const m = self[index];
+                    if (n * m === pre) {
+                        return [n, m]
+                    }
+                }
+
+            })
+        }
+        const multiplyAndAdd5 = pipeFunctions(multiply, add5, reset);
+        console.log(multiplyAndAdd5(5, 2), 'pipeFunctions');
+
+
+
+        //  包装函数返回一个异步promise
+
+        const promisify = func => (...args) =>
+            new Promise((resolve, reject) =>
+                func(...args, (err, result) => {
+                    console.log(err, result, 'shenme');
+                    return (err ? reject(err) : resolve(result))
+                })
+            );
+
+        const delay = promisify((d, cb) => setTimeout(cb, d));
+        delay(2000).then(() => console.log('Hi!')); // // Promise resolves after 2s
+
+
+        //  指定排序下标
+
+        const rearg = (fn, indexes) => (...args) => fn(...indexes.map(i => args[i]));
+
+        var rearged = rearg(
+            function (a, b, c) {
+                return [a, b, c];
+            },
+            [2, 0, 1]
+        );
+        console.log(rearged('b', 'c', 'a')); // ['a', 'b', 'c']
+
+        //  分离数组参数
+
+        const spreadOver = fn => argsArr => fn(...argsArr);
+        const arrayMax = spreadOver(Math.max);
+        console.log(arrayMax([1, 2, 3]));
+
+        //  只接收第一个参数，其他忽略
+
+        const unary = fn => val => fn(val);
+
+        ['6', '8', '10'].map(unary(parseInt)); // [6, 8, 10]
+        
+    </script>
+</body>
+
+</html>

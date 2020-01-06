@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div class="container" style="margin: 100px auto;">
+        <canvas id="my-canvas" height="600" width="800"></canvas>
+    </div>
+
+    <button onclick="doIt()">开始</button>
+
+    <script>
+        var canvas = document.querySelector('#my-canvas');
+        var btn = document.querySelector('button')
+        var ctx = canvas.getContext('2d');
+        var sx = 1, sy = 1;
+        function draw(ctx, sx = 1, sy = 1, x = 25, y = 25) {
+            ctx.scale(sx, sy)
+            ctx.fillRect(x, y, 100, 100);
+            // ctx.clearRect(45, 45, 60, 60);
+            // ctx.strokeRect(50, 50, 50, 50);
+        }
+
+        draw(ctx);
+        draw(ctx, 1.4, 1.4, 25, 200);
+        draw(ctx, .7, .7, 200, 25);
+
+        btn.onclick = function () {
+            draw(ctx, ++sx > 2 ? 1 : sx, ++sy > 2 ? 1 : sy, 25 + 100 * (sx-1), 25);
+        }
+    </script>
+</body>
+</html>

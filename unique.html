@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul, ol, dl {
+            list-style: none;
+        }
+        section {
+            width: 1200px;
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .content {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+        .content .item {
+            width: 20px;
+            height: 100px;
+            background-color: skyblue;
+            position: relative;
+        }
+        .content .item .num {
+            font-size: 12px;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translate(-50%, -100%);
+        }
+        .control {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            width: 100px;
+            height: 30px;
+            background-color: yellow;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .reset {
+            background-color: green;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <section class="unique">
+        <header>去重</header>
+        <ul id="unique-container" class="content"></ul>
+        <div class="control">
+            <button onclick="unique_click('native')">原生排序</button>
+            <button onclick="unique_click('bubble')">冒泡排序</button>
+            <button onclick="unique_click('selection')">选择排序</button>
+            <button onclick="unique_click('insertion')">插入排序</button>
+            <button onclick="unique_click('shell')">希尔排序</button>
+            <button onclick="unique_click('merge')">归并排序</button>
+            <button onclick="unique_click('quick')">快速排序</button>
+            <button onclick="unique_click('heap')">堆排序</button>
+            <button onclick="unique_click('counting')">计数排序</button>
+            <button onclick="unique_click('bucket')">桶排序</button>
+            <button onclick="unique_click('radix')">基数排序</button>
+            <button class="reset" onclick="unique_click('reset')">还原</button>
+        </div>
+    </section>
+    <script>
+        //  乱序
+        function shuffle(A) {
+            for (var i = A.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [A[i], A[j]] = [A[j], A[i]]
+            }
+        }
+        let A = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        shuffle(A)
+        console.log(A);
+        
+        function suiji() {
+            let num = parseInt(Math.random() * 200)
+            return num ? num : suiji()
+        }
+        function getData(n) {
+            let arr = []
+            for (let index = 0; index < n; index++) {
+                arr.push(suiji())
+            }
+            return arr
+        }
+        function getDom(arr) {
+            return arr.reduce((str, item, index, self) => {
+                return str + `<li class="item" style="height: ${item}px;width: ${1200 / self.length - 4}px;"><span class="num">${item}</span></li>`
+            }, '')
+        }
+        function drawView(data, dom) {
+            dom.innerHTML = getDom(data)
+        }
+
+        let container = document.querySelector('#unique-container');
+        let data = getData(100);
+        drawView(data, container)
+
+
+        let repeatIndex = {};
+        let noRepeatArr = [];
+        for (let i = 0; i < data.length; i++) {
+            if (!noRepeatArr.length) {
+                noRepeatArr.push(data[i]);
+                
+                continue
+            }
+            let repeat = false
+            for (let j = 0; j < noRepeatArr.length; j++) {
+                if (data[i] === noRepeatArr[j]) {
+                    if (repeatIndex[data[i]]) {
+                        repeatIndex[data[i]].push(i)
+                    } else {
+                        repeatIndex[data[i]] = [data.indexOf(data[i]), i];
+                    }
+                    repeat = true;
+                    break
+                }
+            }
+            !repeat && noRepeatArr.push(data[i])
+        }
+        console.log(repeatIndex);
+        let keys = Object.keys(repeatIndex);
+        for (let index = 0; index < keys.length; index++) {
+            let color = [
+                'red', 
+                'blue', 
+                'yellow', 
+                'green', 
+                'orange', 
+                '#FF6768', 
+                '#6B778D', 
+                '#263859', 
+                '#17223B', 
+                '#b0deff', 
+                '#ffc5a1', 
+                '#FF502F', 
+                '#004D61', 
+                '#348498', 
+                '#5BD1D7'
+            ][index];
+            repeatIndex[keys[index]].forEach(i => {
+                container.children[i].style.backgroundColor = color
+            })
+        }
+        
+        
+        console.log(noRepeatArr.length, noRepeatArr, data);
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        //  里面函数之间不需要逗号，都是不可枚举的属性方法
+        class Point {
+            constructor(x = 0, y = 0) {
+                this.x = x
+                this.y = y
+                // return Object.create(null)
+                return true
+            }
+
+            toString() {
+                return `x: ${this.x}, y: ${this.y}`
+            }
+        }
+
+        console.log(typeof Point) // "function"
+        console.log(Point === Point.prototype.constructor) // true
+
+        console.log(Object.keys(Point.prototype))
+        // []
+        console.log(Object.getOwnPropertyNames(Point.prototype))
+        // ["constructor","toString"]
+
+        //  类必须使用 new 调用，不然会报错。如果在constructor里面显式return一个对象，导致结果已经不是Point类的实例了.若return的是基本数据类型则忽略
+        console.log(new Point())
+        console.log(new Point() instanceof Point)
+
+        let point = new Point();
+        console.log(Object.getPrototypeOf(point) === Point.prototype, Object.getPrototypeOf(point) === point.__proto__)
+
+
+
+
+        //  在“类”的内部可以使用get和set关键字
+
+        let initProp = 'initProp'
+        class Getorset {
+            constructor() {
+                this.prop = initProp
+            }
+
+            get prop() {
+                console.log('getters')
+                return initProp
+            }
+
+            set prop(value) {
+                console.log('setters')
+                initProp = value
+            }
+        }
+
+        let gs = new Getorset()
+        gs.prop = 'change'
+        console.log(gs.prop)
+
+        //  存值函数和取值函数是设置在属性的 Descriptor 对象上的
+        let gsES5 = (function () {
+            var _name = ' ';
+            var obj = {};
+            Object.defineProperty(obj, 'prop', {
+                configurable: true,
+                enumerable: true,
+                get: function () {
+                    return _name;
+                },
+                set: function (n) {
+                    _name = n;
+                }
+            })
+            return obj;
+        })()
+
+
+        const descriptor = Object.getOwnPropertyDescriptor(
+            Getorset.prototype, "prop"
+        );
+        const descriptorES5 = Object.getOwnPropertyDescriptor(
+            gsES5, "prop"
+        );
+
+
+        console.log(Object.keys(descriptor), Object.keys(descriptorES5))
+
+
+
+
+
+
+        //  继承extends，子类继承父类得实例属性、静态方法，显示constructor 需要手动super（），不写constructor则相当于隐式super（）
+    </script>
+</body>
+
+</html>

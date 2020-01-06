@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        /*
+         *  ES6引入一种新的原始数据类型Symbol,表示独一无二的值(ES5 String Number Boolean Null Undefined Object) 
+         *  类似于字符串，用作对象属性名命名，代表独一无二的属性
+         */
+
+        let s = Symbol('attr');
+
+        console.log(s, typeof s, Object.prototype.toString.call(s));
+
+        console.log(Symbol('str') === Symbol('str'), Symbol('str') == Symbol('str'), '都不相等');
+
+        //  Symbol值不能和其他类型值运算，会报错
+
+        try {
+            const t1 = '字符串' + s;
+            // const t2 = 1 + s;
+            // const t3 = true + s;
+            console.log('不在执行');
+        } catch (err) {
+            console.log(err, 'Symbol值不能和其他类型值运算');
+        }
+
+
+        //  属性名Symbol类型遍历，
+        //  不会出现在for...in、for...of循环中，也不会被Object.keys()、Object.getOwnPropertyNames()、JSON.stringify()返回。
+        //  有一个Object.getOwnPropertySymbols方法，Object.getOwnPropertySymbols(obj) ==> [Symbol(a), Symbol(b)]
+
+        const obj = {};
+        let a = Symbol('a');
+        let b = Symbol('b');
+        let c = 'c';
+        let forinKeys = [];
+        let forofKeys = [];
+
+        Object.defineProperty(obj, 'd', {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: "可枚举"
+        });
+
+        obj[a] = 'Hello';
+        obj[b] = 'World';
+        obj[c] = ' !';
+
+        Object.getPrototypeOf(obj).fn = () => true;
+
+        for (let key in obj) {
+            forinKeys.push(key)
+        }
+
+        for (let [key, val] of Object.entries(obj)) {
+            forofKeys.push(key)
+        }
+
+        
+
+        /*
+         *  obj
+         *       Symbol('a')               'Hello'
+         *       Symbol('b')               'World'
+         *       c                         ' !'
+         *       d (enumerable)            '可枚举'
+         *       __proto__.fn (enumerable) 'function'
+         */
+
+        const keyColection = Object.keys(obj);
+        const nameColection = Object.getOwnPropertyNames(obj);
+        const objectSymbols = Object.getOwnPropertySymbols(obj);
+        const reflectKeys = Reflect.ownKeys(obj);
+
+        console.log(forinKeys, 'for...in 遍历原型链可枚举 no Symbol');
+        console.log(forofKeys, 'for...of 遍历自身可枚举 no Symbol');
+        console.log(keyColection, 'Object.keys  遍历自身可枚举 no Symbol');
+        console.log(nameColection, 'Object.getOwnPropertyNames  遍历自身可枚举 no Symbol');
+        console.log(objectSymbols, 'Object.getOwnPropertySymbols  遍历自身Symbol');
+        console.log(reflectKeys, 'Reflect.ownKeys 遍历自身属性和Symbol');
+        console.log(JSON.stringify(obj), 'JSON.stringify(obj) 自身可枚举');
+
+
+
+        //  Symbol.for(key) 登记在全局环境中供搜索,若全局环境中有则直接返回，没有就新建一个Symbol
+        //  Symbol.keyFor(Symbol)   方法返回一个已登记的 Symbol 类型值的key
+
+        let foo1 = Symbol.for('foo');
+        let foo2 = Symbol.for('foo');
+
+        let fooKey = [Symbol.keyFor(foo1), Symbol.keyFor(foo2)];
+        
+        console.log(foo1 === foo2, fooKey);
+
+
+        //  Symbol.hasInstance
+        //  foo instanceof Foo在语言内部，实际调用的是Foo[Symbol.hasInstance](foo)
+
+        class Foo {
+            [Symbol.hasInstance]() {
+                
+            }
+        }
+
+    </script>
+</body>
+
+</html>

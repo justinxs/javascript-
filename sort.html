@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul, ol, dl {
+            list-style: none;
+        }
+        section {
+            width: 1200px;
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .content {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+        .content .item {
+            width: 20px;
+            height: 100px;
+            background-color: skyblue;
+            position: relative;
+        }
+        .content .item .num {
+            font-size: 12px;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translate(-50%, -100%);
+        }
+        .control {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            width: 100px;
+            height: 30px;
+            background-color: yellow;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .reset {
+            background-color: green;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <section class="sort">
+        <header>排序</header>
+        <ul id="sort-container" class="content"></ul>
+        <div class="control">
+            <button onclick="sort_click('native')">原生排序</button>
+            <button onclick="sort_click('bubble')">冒泡排序</button>
+            <button onclick="sort_click('selection')">选择排序</button>
+            <button onclick="sort_click('insertion')">插入排序</button>
+            <button onclick="sort_click('shell')">希尔排序</button>
+            <button onclick="sort_click('merge')">归并排序</button>
+            <button onclick="sort_click('quick')">快速排序</button>
+            <button onclick="sort_click('heap')">堆排序</button>
+            <button onclick="sort_click('counting')">计数排序</button>
+            <button onclick="sort_click('bucket')">桶排序</button>
+            <button onclick="sort_click('radix')">基数排序</button>
+            <button class="reset" onclick="sort_click('reset')">还原</button>
+        </div>
+    </section>
+    
+
+    <script>
+         class Sort {
+            constructor(options) {
+                this.count = options && options.count || 60
+                this.container = options && options.container || document.querySelector('#sort-container')
+                this.data = options && options.data || this.getData(this.count)
+                this.container && this.drawView(this.data, this.container)
+            }
+            suiji() {
+                let num = parseInt(Math.random() * 200)
+                return num ? num : this.suiji()
+            }
+            getData(n) {
+                let arr = []
+                for (let index = 0; index < n; index++) {
+                    arr.push(this.suiji())
+                }
+                return arr
+            }
+            getDom(arr) {
+                return arr.reduce((str, item, index, self) => {
+                    return str + `<li class="item" style="height: ${item}px;width: ${1200 / self.length - 4}px;"><span class="num">${item}</span></li>`
+                }, '')
+            }
+            drawView(data, dom) {
+                dom.innerHTML = this.getDom(data)
+            }
+
+            //  重置
+            reset_sort() {
+                this.data = this.getData(this.count)
+                this.drawView(this.data, this.container)
+            }
+
+            //  原生方法排序
+            native_sort() {
+                this.data = this.data.sort((a, b) => a - b)
+                this.drawView(this.data, this.container)
+            }
+
+            //  冒泡排序
+            bubble_sort() {
+                let data = this.data, len = this.data.length
+                for (let i = 0; i < len; i++) {
+                    for (let j = 0; j < len - i - 1; j++) {
+                        if (data[j] > data[j + 1]) {
+                            data[j] = data[j] + data[j + 1]
+                            data[j + 1] = data[j] - data[j + 1]
+                            data[j] = data[j] - data[j + 1]
+                        }
+                    }
+                }
+                this.drawView(data, this.container)
+            }
+
+            //  选择排序
+            selection_sort() {
+                let data = this.data, minIndex, len = this.data.length
+                for (let i = 0; i < len - 1; i++) {
+                    minIndex = i
+                    for (let j = i + 1; j < len; j++) {
+                        if (data[minIndex] > data[j]) {
+                            minIndex = j
+                        }
+                    }
+
+                    if (minIndex === i) continue
+                    data[i] = data[minIndex] + data[i]
+                    data[minIndex] = data[i] - data[minIndex]
+                    data[i] = data[i] - data[minIndex]
+                    
+                }
+
+                this.drawView(data, this.container)
+            }
+
+            //  插入排序
+            insertion_sort() {
+                let len = this.data.length, preIndex, current, data = this.data
+
+                for (var i = 1; i < len; i++) {
+                    preIndex = i - 1
+                    current = data[i]
+                    while(preIndex >= 0 && data[preIndex] > current) {
+                        data[preIndex+1] = data[preIndex];
+                        preIndex--
+                    }
+                    data[preIndex+1] = current
+                }
+
+                this.drawView(data, this.container)
+            }
+
+            //  希尔排序
+            shell_sort() {
+                var len = this.data.length,
+                    data = this.data,
+                    temp,
+                    gap = 1
+                while(gap < len/3) {          //动态定义间隔序列
+                    gap =gap*3+1
+                }
+                for (gap; gap > 0; gap = Math.floor(gap/3)) {
+                    for (var i = gap; i < len; i++) {
+                        temp = data[i]
+                        for (var j = i-gap; j >= 0 && data[j] > temp; j-=gap) {
+                            data[j+gap] = data[j]
+                        }
+                        data[j+gap] = temp
+                    }
+                }
+
+                this.drawView(data, this.container)
+            }
+
+            //  归并排序
+
+            merge_sort() {
+                let data = this.data, len = this.data.length;
+                let mergeSort = (data) => {
+                    if (data.length === 1) {
+                        return data
+                    }
+
+                    let mid = Math.floor(data.length / 2);
+                    let left = data.slice(0, mid);
+                    let right = data.slice(mid);
+
+                    return merge(mergeSort(left), mergeSort(right));
+                }
+
+                function merge(left, right) {
+                    let tmp = [];
+
+                    while (left.length && right.length) {
+                        if (left[0] < right[0]) {
+                            tmp.push(left.shift());
+                        } else {
+                            tmp.push(right.shift());
+                        }
+                    }
+
+                    return tmp.concat(left, right);
+                }
+
+                this.data = data = mergeSort(data);
+
+                this.drawView(data, this.container)
+
+            }
+
+            //  快速排序
+
+            quick_sort() {
+                function quickSort(arr) {
+                    // 交换
+                    function swap(arr, a, b) {
+                        var temp = arr[a];
+                        arr[a] = arr[b];
+                        arr[b] = temp;
+                    }
+                
+                    // 分区
+                    function partition(arr, left, right) {
+                        /**
+                         * 开始时不知最终pivot的存放位置，可以先将pivot交换到后面去
+                         * 这里直接定义最右边的元素为基准
+                         */
+                        var pivot = arr[right];
+                        /**
+                         * 存放小于pivot的元素时，是紧挨着上一元素的，否则空隙里存放的可能是大于pivot的元素，
+                         * 故声明一个storeIndex变量，并初始化为left来依次紧挨着存放小于pivot的元素。
+                         */
+                        var storeIndex = left;
+                        for (var i = left; i < right; i++) {
+                            if (arr[i] < pivot) {
+                                /**
+                                 * 遍历数组，找到小于的pivot的元素，（大于pivot的元素会跳过）
+                                 * 将循环i次时得到的元素，通过swap交换放到storeIndex处，
+                                 * 并对storeIndex递增1，表示下一个可能要交换的位置
+                                 */
+                                swap(arr, storeIndex, i);
+                                storeIndex++;
+                            }
+                        }
+                        // 最后： 将pivot交换到storeIndex处，基准元素放置到最终正确位置上
+                        swap(arr, right, storeIndex);
+                        return storeIndex;
+                    }
+                
+                    function sort(arr, left, right) {
+                        if (left > right) return;
+                    
+                        var storeIndex = partition(arr, left, right);
+                        sort(arr, left, storeIndex - 1);
+                        sort(arr, storeIndex + 1, right);
+                    }
+                
+                    sort(arr, 0, arr.length - 1);
+                    return arr;
+                }
+
+                this.data = quickSort(this.data);
+                this.drawView(this.data, this.container)
+
+            }
+
+            //  堆排序
+
+            heap_sort() {
+                var len;    //因为声明的多个函数都需要数据长度，所以把len设置成为全局变量
+
+                function buildMaxHeap(arr) {   //建立大顶堆
+                    len = arr.length;
+                    for (var i = Math.floor(len/2); i >= 0; i--) {
+                        heapify(arr, i);
+                    }
+                }
+
+                function heapify(arr, i) {     //堆调整
+                    var left = 2 * i + 1,
+                        right = 2 * i + 2,
+                        largest = i;
+                
+                    if (left < len && arr[left] > arr[largest]) {
+                        largest = left;
+                    }
+                
+                    if (right < len && arr[right] > arr[largest]) {
+                        largest = right;
+                    }
+                
+                    if (largest != i) {
+                        swap(arr, i, largest);
+                        heapify(arr, largest);
+                    }
+                }
+
+                function swap(arr, i, j) {
+                    var temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+
+                function heapSort(arr) {
+                    buildMaxHeap(arr);
+                
+                    for (var i = arr.length-1; i > 0; i--) {
+                        swap(arr, 0, i);
+                        len--;
+                        heapify(arr, 0);
+                    }
+                    return arr;
+                }
+
+                this.data = heapSort(this.data);
+                this.drawView(this.data, this.container)
+            }
+
+            //  计数排序
+
+            counting_sort() {
+                function countingSort(arr, maxValue) {
+                    var bucket = new Array(maxValue+1),
+                        sortedIndex = 0,
+                        arrLen = arr.length,
+                        bucketLen = maxValue + 1;
+
+                    for (var i = 0; i < arrLen; i++) {
+                        if (!bucket[arr[i]]) {
+                            bucket[arr[i]] = 0;
+                        }
+                        bucket[arr[i]]++;
+                    }
+                
+                    for (var j = 0; j < bucketLen; j++) {
+                        while(bucket[j] > 0) {
+                            arr[sortedIndex++] = j;
+                            bucket[j]--;
+                        }
+                    }
+                
+                    return arr;
+                }
+                let maxValue = this.data.reduce((max, num, index, self) => max > num ? max : num);
+                console.log(maxValue);
+                this.data = countingSort(this.data, maxValue);
+                this.drawView(this.data, this.container)
+            }
+
+            //  桶排序
+
+            bucket_sort() {
+                function bucketSort(arr, bucketSize) {
+                    if (arr.length === 0) {
+                      return arr;
+                    }
+                
+                    var i;
+                    var minValue = arr[0];
+                    var maxValue = arr[0];
+                    for (i = 1; i < arr.length; i++) {
+                      if (arr[i] < minValue) {
+                          minValue = arr[i];                //输入数据的最小值
+                      } else if (arr[i] > maxValue) {
+                          maxValue = arr[i];                //输入数据的最大值
+                      }
+                    }
+                
+                    //桶的初始化
+                    var DEFAULT_BUCKET_SIZE = 5;            //设置桶的默认数量为5
+                    bucketSize = bucketSize || DEFAULT_BUCKET_SIZE;
+                    var bucketCount = Math.floor((maxValue - minValue) / bucketSize) + 1;   
+                    var buckets = new Array(bucketCount);
+                    for (i = 0; i < buckets.length; i++) {
+                        buckets[i] = [];
+                    }
+                
+                    //利用映射函数将数据分配到各个桶中
+                    for (i = 0; i < arr.length; i++) {
+                        buckets[Math.floor((arr[i] - minValue) / bucketSize)].push(arr[i]);
+                    }
+                
+                    arr.length = 0;
+                    for (i = 0; i < buckets.length; i++) {
+                        insertion_sort(buckets[i]);                      //对每个桶进行排序，这里使用了插入排序
+                        for (var j = 0; j < buckets[i].length; j++) {
+                            arr.push(buckets[i][j]);                      
+                        }
+                    }
+                
+                    return arr;
+                }
+
+                this.data = bucketSort(this.data);
+                this.drawView(this.data, this.container)
+            }
+
+            
+            //  基数排序
+
+            radix_sort() {
+                var counter = [];
+                function radixSort(arr, maxDigit) {
+                    var mod = 10;
+                    var dev = 1;
+                    for (var i = 0; i < maxDigit; i++, dev *= 10, mod *= 10) {
+                        for(var j = 0; j < arr.length; j++) {
+                            var bucket = parseInt((arr[j] % mod) / dev);
+                            if(counter[bucket]==null) {
+                                counter[bucket] = [];
+                            }
+                            counter[bucket].push(arr[j]);
+                        }
+                        var pos = 0;
+                        for(var j = 0; j < counter.length; j++) {
+                            var value = null;
+                            if(counter[j]!=null) {
+                                while ((value = counter[j].shift()) != null) {
+                                      arr[pos++] = value;
+                                }
+                          }
+                        }
+                    }
+                    return arr;
+                }
+                let maxDigit = 200;
+                this.data = radixSort(this.data, maxDigit);
+                this.drawView(this.data, this.container)
+            }
+
+        }
+
+
+        
+        let sortObj = new Sort();
+
+        let sort_click = (key) => {
+            console.log(key + '_sort')
+            sortObj[key + '_sort']()
+        }
+    </script>
+</body>
+</html>

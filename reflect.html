@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- Target -->
+    <textarea id="bar">Mussum ipsum cacilds...</textarea>
+
+    <!-- Trigger -->
+    <button id="btn" class="btn" data-clipboard-action="copy" data-clipboard-target="#bar">
+        Cut to clipboard
+    </button>
+
+    <div contenteditable="true" style="width: 200px;height: 50px;border: 1px solid #ccc;"></div>
+
+    <!-- <script src="./clipboard.js"></script> -->
+    <script src="./clipboard-polyfill.js"></script>
+    <script>
+        /* *
+         *  Reflect.apply(target, thisArg, args)
+            Reflect.construct(target, args)
+            Reflect.get(target, name, receiver)
+            Reflect.set(target, name, value, receiver)
+            Reflect.defineProperty(target, name, desc)
+            Reflect.deleteProperty(target, name)
+            Reflect.has(target, name)
+            Reflect.ownKeys(target)
+            Reflect.isExtensible(target)
+            Reflect.preventExtensions(target)
+            Reflect.getOwnPropertyDescriptor(target, name)
+            Reflect.getPrototypeOf(target)
+            Reflect.setPrototypeOf(target, prototype)
+         */
+
+        var myObject = {
+            foo: 1,
+            bar: 2,
+            get baz() {
+                return this.foo + this.bar;
+            },
+        };
+
+        var myReceiverObject = {
+            foo: 4,
+            bar: 4,
+        };
+        // console.log(myObject.bar);
+        // console.log(Reflect.get(myObject, 'foo'));
+        // console.log(Reflect.get(myObject, 'bar'));
+        console.log(Reflect.get(myObject, 'bar', myReceiverObject));
+
+
+
+        // var _clipboard = new ClipboardJS('.btn');
+
+        // _clipboard.on('success', function (e) {
+        //     console.info('Action:', e.action);
+        //     console.info('Text:', e.text);
+        //     console.info('Trigger:', e.trigger);
+
+        //     e.clearSelection();
+        // });
+
+        // _clipboard.on('error', function (e) {
+        //     console.error('Action:', e.action);
+        //     console.error('Trigger:', e.trigger);
+        // });
+
+
+        // clipboard.writeText("This text is plain.");
+        // clipboard.readText().then(console.log, console.error);
+        document.getElementById("btn").addEventListener("click", function () {
+            var dt = new clipboard.DT();
+            dt.setData("text/html", "<i>Markup</i> <b>text</b>. Paste me into a rich text editor.");
+            dt.setData("text/plain", "Fallback markup text. Paste me into a rich text editor.");
+            clipboard.write(dt)
+        })
+
+
+
+        const p1 = new Promise(function (resolve, reject) {
+            setTimeout(() => resolve('success'), 3000)
+        })
+
+        const p2 = new Promise(function (resolve, reject) {
+            setTimeout(() => resolve(p1), 1000)
+        })
+
+        p2.then(result => {
+            console.log(111111111111);
+            console.log(result)
+        }).catch(error => console.log(error))
+    </script>
+</body>
+
+</html>

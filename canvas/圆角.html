@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <strong>这是原图</strong>
+    <p><img src="../images/mm1.jpg" width="256" height="192"></p>
+    <strong>这是Canvas实现</strong>
+    <p>圆角大小：<span class="range-txt"> 0 <input id="radiusInput" type="range" min="0" max="192" value="192"> 192</span></p>
+    <canvas id="canvas" width="256" height="192"></canvas>
+
+
+    <script>
+        //圆角矩形
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            var min_size = Math.min(w, h);
+            if (r > min_size / 2) r = min_size / 2;
+            // 开始绘制
+            this.beginPath();
+            this.moveTo(x + r, y);
+            this.arcTo(x + w, y, x + w, y + h, r);
+            this.lineTo(x + w, y + h)
+            this.lineTo(x, y + h)
+            // this.arcTo(x + w, y + h, x, y + h, r);
+            // this.arcTo(x, y + h, x, y, r);
+            this.arcTo(x, y, x + w, y, r);
+            this.closePath();
+            return this;
+        }
+
+        // canvas元素, 图片元素
+        var canvas = document.querySelector("#canvas"),
+            image = new Image(),
+            input = document.getElementById("radiusInput");
+        var context = canvas.getContext("2d");
+
+        var draw = function (obj) {
+            // 创建图片纹理
+            var pattern = context.createPattern(obj, "no-repeat");
+            
+            // 如果要绘制一个圆，使用下面代码
+            // context.arc(50, 50, 40, 0, 2 * Math.PI);
+            // 这里使用圆角矩形
+            context.roundRect(0, 0, obj.width - 30, obj.height - 30, input.value * 1 || 0);
+
+            // 填充绘制的圆
+            context.strokeStyle = 'pink';
+            context.lineWidth = 10;
+
+            context.stroke()
+            // context.fillStyle = pattern;
+            // context.fill();
+        }
+        // image.crossOrigin = '';
+        image.onload = function () {
+            draw(this);
+        };
+        image.src = "../images/mm1.jpg";
+        // image.src = "https://memberfiles.hlqczs.com/images/headPortrait/heard_gh8.png";
+
+        input.addEventListener("change", function () {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            draw(image);
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        //  一年中第几天
+        const dayOfYear = date => Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+
+        console.log(dayOfYear(new Date(2019, 0, 1, 19, 10)));
+
+        // 时期格式化
+        const formatDuration = ms => {
+            if (ms < 0) ms = -ms;
+            const time = {
+                day: Math.floor(ms / 86400000),
+                hour: Math.floor(ms / 3600000) % 24,
+                minute: Math.floor(ms / 60000) % 60,
+                second: Math.floor(ms / 1000) % 60,
+                millisecond: Math.floor(ms) % 1000
+            };
+            return Object.entries(time)
+                .filter(val => val[1] !== 0)
+                .map(([key, val]) => `${val} ${key}${val !== 1 ? 's' : ''}`)
+                .join(', ');
+        };
+
+        formatDuration(1001); // '1 second, 1 millisecond'
+        formatDuration(34325055574); // '397 days, 6 hours, 44 minutes, 15 seconds, 574 milliseconds'
+        console.log(formatDuration(new Date()));
+
+        //  Returns a string of the form HH:MM:SS from a Date object
+        const getColonTimeFromDate = date => date.toTimeString().slice(0, 8);
+
+        console.log(getColonTimeFromDate(new Date()), 'HH:MM:SS');
+
+        //  两个时间相差天数
+
+        const getDaysDiffBetweenDates = (dateInitial, dateFinal) => (dateFinal - dateInitial) / (1000 * 3600 * 24);
+
+        console.log(getDaysDiffBetweenDates(new Date('2019-6-23'), new Date('2019-7-1')));
+
+        //  添加上午am下午pm后缀--24h转12h
+
+        const getMeridiemSuffixOfInteger = num =>
+            num === 0 || num === 24 ?
+            12 + 'am' :
+            num === 12 ?
+            12 + 'pm' :
+            num < 12 ?
+            (num % 12) + 'am' :
+            (num % 12) + 'pm';
+
+
+        console.log(getMeridiemSuffixOfInteger(5), getMeridiemSuffixOfInteger(13));
+
+
+        //  判断两个时间的先后
+
+        const isAfterDate = (dateA, dateB) => dateA > dateB;
+        const isBeforeDate = (dateA, dateB) => dateA < dateB;
+        const isSameDate = (dateA, dateB) => dateA.toISOString() === dateB.toISOString();
+        const maxDate = dates => new Date(Math.max(...dates));
+        const minDate = dates => new Date(Math.min(...dates));
+
+        console.log(isBeforeDate(new Date(2010, 10, 20), new Date(2010, 10, 21)), isAfterDate(new Date(2010, 10, 20),
+            new Date(2010, 10, 21)));
+
+
+
+        //  明天
+        const tomorrow = () => {
+            let t = new Date();
+            t.setDate(t.getDate() + 1);
+            return t.toISOString().split('T')[0];
+        };
+
+        console.log(tomorrow());
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function* hello() {
+            console.log('start')
+            yield 'hello'
+            yield 'world'
+            return '你好嗎'
+        }
+
+        //  返回一个遍历器对象
+        let todo = hello()
+        console.log(todo.next())
+        console.log(todo.next())
+        console.log(todo.next())
+
+        let num1 = 7,
+            num2 = 3
+
+        function* count() {
+            yield num1 + num2
+        }
+
+        const counter = count()
+        num1 = 6
+
+        console.log(counter.next())
+        console.log(counter.next())
+
+
+        //  generator函数调用返回遍历器对象，这个遍历器对象的Symbol,iterator属性调用返回自身
+
+        function* self() {
+
+        }
+        const mySelf = self()
+
+        console.log(mySelf[Symbol.iterator]() === mySelf, '遍历器对象的Symbol.iterator属性')
+
+
+        //  yield表达式默认返回undefined，next函数的参数可以当作上一个yield表达式的返回值
+
+        function* reVal() {
+            while (true) {
+                let val = yield console.log('---')
+                if (val) {
+                    console.log(`next参数：${val}`)
+                }
+            }
+
+        }
+        const reset = reVal()
+        reset.next()
+        reset.next(true)
+
+
+        function* dataConsumer() {
+            console.log('Started');
+            let ff = yield console.log('第一次')
+            console.log(`1. ${ff}`);
+            let gg = yield console.log('第二次')
+            console.log(`2. ${gg}`);
+            return 'result';
+        }
+
+        let genObj = dataConsumer();
+        genObj.next();
+        // Started
+        genObj.next('a')
+        // 1. a
+        genObj.next('b')
+        // 2. b
+
+
+        //  for...of可以遍历generator函数返回的Iterator对象，不需要调用next()，当返回的对象done值为true的时候for...of循环终止
+        //  for...of循环最后一次返回遍历器中执行遇到return，直接跳出结束，也就是说generator中执行n+1次，for...of中执行n次
+
+        function* fibonacci() {
+            let [prev, curr] = [0, 1];
+            for (;;) {
+                yield curr;
+                [prev, curr] = [curr, prev + curr];
+            }
+        }
+
+        for (let n of fibonacci()) {
+            if (n > 10) break;
+            console.log(n);
+
+        }
+
+        function* foo() {
+            yield 1;
+            yield 2;
+            yield 3;
+            yield 4;
+            yield 5;
+            return 6;
+        }
+
+        for (let v of foo()) {
+            console.log(v);
+        }
+
+
+        let Person = function () {
+            this.name = 'haha'
+
+        }
+        let myType = {
+            init: function () {
+                this.name = 'nihao'
+            }
+        }
+        Object.defineProperty(myType, 'constructor', {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: Person
+        })
+        Person.prototype = myType
+
+        let guy = new Person();
+        Object.defineProperty(guy, 'sex', {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: 'female'
+        })
+        for (var key in guy) {
+            console.log(key, guy[key])
+        }
+        console.log(Object.keys(guy))
+        //  对象没有 Iterator 接口，通过 generator 函数为它加上 Iterator 接口
+
+        function* objectEntries(obj) {
+            //  Object.keys返回的是可枚举属性(enumerable:true)并且不会遍历原型链里面的属性方法[for...in会遍历原型链的属性方法]
+            //  Reflect.ownKeys 返回所有的自己属性，不管可枚举还是不可枚举,不会找原型链
+            //  Reflect.ownKeys等同于Object.getOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target))
+            //  Object.getOwnPropertyNames()方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组
+            //  Object.getOwnPropertySymbols() 方法返回一个给定对象自身的所有 Symbol 属性的数组
+            // let propertyKeys = Reflect.ownKeys(obj || this);
+            let propertyKeys = Object.keys(obj || this);
+            // let propertyKeys = Object.getOwnPropertyNames(obj || this).concat(Object.getOwnPropertySymbols(obj || this));
+            console.log(propertyKeys)
+            for (let key of propertyKeys) {
+                yield obj ? {
+                    key: key,
+                    value: obj[key]
+                } : [key, this[key]]
+            }
+        }
+
+        for (let {
+                key,
+                value
+            } of objectEntries(guy)) {
+            console.log(`key:${key} value: ${value}`)
+        }
+
+
+        //  加上遍历器接口的另一种写法是，将 Generator 函数加到对象的Symbol.iterator属性上面
+
+        let getIterator = {
+            first: 'Jane',
+            last: 'Doe'
+        };
+        getIterator[Symbol.iterator] = objectEntries;
+
+        for (let [key, value] of getIterator) {
+            console.log(`key:${key} value: ${value}`)
+        }
+
+
+        //  next()、throw()、return()这三个方法本质上是同一件事，可以放在一起理解。它们的作用都是让 Generator 函数恢复执行，并且使用不同的语句替换yield表达式
+        //  next()是将yield表达式替换成一个值,如果无参数则替换成undefined
+        const g = function* (x, y) {
+            let result = yield x + y;
+            return result;
+        };
+
+        const gen = g(1, 2);
+        console.log(gen.next()); // Object {value: 3, done: false}
+
+        console.log(gen.next(1)); // Object {value: 1, done: true}
+        // 相当于将 let result = yield x + y
+        // 替换成 let result = 1;
+
+        //  throw()是将yield表达式替换成一个throw语句
+        //gen.throw(new Error('出错了')); // Uncaught Error: 出错了
+        // 相当于将 let result = yield x + y
+        // 替换成 let result = throw(new Error('出错了'));
+
+        //  return()是将yield表达式替换成一个return语句
+        console.log(gen.return(2)); // Object {value: 2, done: true}
+        // 相当于将 let result = yield x + y
+        // 替换成 let result = return 2;
+
+
+        //  yield*表达式，用来在一个 Generator 函数里面执行另一个 Generator 函数
+
+        function* foo1() {
+            yield 'a';
+            yield 'b';
+        }
+
+        function* bar1() {
+            yield 'x';
+            yield* foo1();
+            yield 'y';
+        }
+
+        // 等同于
+        function* bar2() {
+            yield 'x';
+            yield 'a';
+            yield 'b';
+            yield 'y';
+        }
+
+        // 等同于
+        function* bar3() {
+            yield 'x';
+            for (let v of foo1()) {
+                yield v;
+            }
+            yield 'y';
+        }
+
+        for (let v of bar()) {
+            console.log(v);
+        }
+        // "x"
+        // "a"
+        // "b"
+        // "y"
+
+
+        
+    </script>
+</body>
+
+</html>

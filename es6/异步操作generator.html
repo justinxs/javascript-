@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        //  基于thunk函数的异步操作自动执行流，每一步返回一个thunk函数，callback自身再作为参数传进去
+
+
+
+        //  thunk函数以异步处理函数为参数，该函数保存起来等待用于后面执行，返回一个处理处理函数
+        // ES5版本
+        var Thunk = function (fn) {
+            return function () {
+                var args = Array.prototype.slice.call(arguments);
+                return function (callback) {
+                    args.push(callback);
+                    return fn.apply(this, args);
+                }
+            };
+        };
+
+        // ES6版本
+        const Thunk = function (fn) {
+            return function (...args) {
+                return function (callback) {
+                    return fn.call(this, ...args, callback);
+                }
+            };
+        };
+
+        var readFileThunk = Thunk(IOFunction)
+
+        //  利用递归在回调中执行遍历器对象的 next（）方法，判断done作为结束条件
+        function run(fn) {
+            var gen = fn();
+
+            function next(err, data) {
+                var result = gen.next(data);
+                if (result.done) return;
+                result.value(next);
+            }
+
+            next();
+        }
+
+        //  每一次返回一个接受callback的thunk函数
+        function* g() {
+            var f1 = yield readFileThunk('fileA');
+            var f2 = yield readFileThunk('fileB');
+            // ...
+            var fn = yield readFileThunk('fileN');
+        }
+
+        run(g);
+
+
+        //  基于promise对象的异步操作自动执行流，每一步返回一个promise对象，then中再调用自身callback
+
+        //  包装promise对象，异步回调中resole，错误则reject
+        var readFile = function (fileName) {
+            return new Promise(function (resolve, reject) {
+                fs.readFile(fileName, function (error, data) {
+                    if (error) return reject(error);
+                    resolve(data);
+                });
+            });
+        };
+
+
+        //  每一次返回一个promise对象
+        var gen = function* () {
+            var f1 = yield readFile('/etc/fstab');
+            var f2 = yield readFile('/etc/shells');
+            console.log(f1.toString());
+            console.log(f2.toString());
+        };
+
+        // 递归中调用generator的next（），value中的promise对象的then方法调用自身
+        function run(gen) {
+            var g = gen();
+
+            function next(data) {
+                var result = g.next(data);
+                if (result.done) return result.value;
+                result.value.then(function (data) {
+                    next(data);
+                });
+            }
+
+            next();
+        }
+
+        run(gen);
+    </script>
+</body>
+
+</html>

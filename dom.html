@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+    <script src="./ua-parser.js"></script>
+    <script>
+        //  判断终端
+        let ua = UAParser(navigator.userAgent);
+        console.log(ua);
+
+
+        //  去除字符串头尾空格
+        const trim = function (string) {
+            return (string || '').replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
+        };
+
+        //  去除字符串所有空格
+
+        const trimAll = function (string) {
+            return (string || '').replace(/\s/g, '')
+        }
+        console.log(' dsd dssd sd  sd ', trim(' dsd dssd sd  sd '), trimAll(' dsd dssd sd  sd '));
+
+
+        //  驼峰命名转换 (font-size, font--size, fotn_size, font:size, --moz--font-size)
+        const camelCase = function (name) {
+            const SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
+            const MOZ_HACK_REGEXP = /^moz([A-Z])/;
+
+            return name.replace(SPECIAL_CHARS_REGEXP, function (_, separator, letter, offset) {
+                console.log(_, separator, letter, offset, 'camelCase');
+                return offset ? letter.toUpperCase() : letter;
+            }).replace(MOZ_HACK_REGEXP, 'Moz$1');
+        };
+
+        //  -连字符转驼峰
+        const camelize = (str) => {
+            const camelizeRE = /-(\w)/g
+            return str.replace(camelizeRE, (_, c) => {
+                console.log(_, c, 'camelize');
+                return c ? c.toUpperCase() : ''
+            })
+        }
+
+        console.log(camelCase('--moz--font-size'), camelize('font-size'));
+
+
+        
+
+    </script>
+</body>
+
+</html>
