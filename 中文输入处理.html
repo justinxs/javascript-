@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文输入处理</title>
+</head>
+<body>
+    <input type="text" name="inputTest" id="inputTest" autocomplete="off">
+    <span class="text-len"></span>
+    <script>
+        let textLen = document.querySelector('.text-len')
+
+        function compositeInput(target, callback) {
+            const isString = val => Object.prototype.toString.call(val) === "[object String]";
+            const isDom = val => val instanceof HTMLElement;
+            if (isString(target)) {
+                target = document.querySelector(target);
+            }
+            if (!isDom(target)) return;
+
+            let flag = false;
+            let cp_start_cb = e => flag = true;
+            let cp_end_cb = e => {
+                flag = false;
+                callback && callback(e)
+            };
+            let input_cb = e => {
+                !flag && callback && callback(e)
+            };
+            let blur_cb = e => callback && callback(e);
+
+            target.addEventListener('compositionstart', function (e) {
+                console.log('compositionstart')
+                cp_start_cb(e)
+            }, false);
+            target.addEventListener('compositionend', function (e) {
+                console.log('compositionend')
+                cp_end_cb(e)
+            }, false);
+            target.addEventListener('input', function (e) {
+                console.log('input')
+                input_cb(e)
+            }, false);
+            target.addEventListener('blur', function (e) {
+                console.log('blur')
+                blur_cb(e)
+            }, false);
+            
+            return {
+                get flag() {
+                    return flag
+                },
+                set flag(value) {
+                    return
+                },
+                target,
+                clear() {
+                    target.removeEventListener('compositionstart', cp_start_cb, false);
+                    target.removeEventListener('compositionend', cp_end_cb, false);
+                    target.removeEventListener('input', input_cb, false);
+                    target.removeEventListener('blur', blur_cb, false);
+                }
+            }
+        }
+        let instance = compositeInput('#inputTest', function (e) {
+            textLen.innerHTML = e.target.value
+        });
+        console.log(instance)
+    </script>
+</body>
+</html>
