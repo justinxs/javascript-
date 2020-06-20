@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光标位置</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .editor-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-end;
+            margin-left: 100px;
+            margin-bottom: 100px;
+        }
+        #content-editor,
+        #textarea-editor {
+            width: 200px;
+            height: 100px;
+            border: 1px solid #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <div id="content-editor" contenteditable="true"></div>
+        <button class="insert-button" id="content-insert">插入</button>
+    </div>
+
+    <div class="editor-container">
+        <textarea id="textarea-editor"></textarea>
+        <button class="insert-button" id="textarea-insert">插入</button>
+    </div>
+    
+
+    <script>
+
+        initContentEditor()
+        initTextareaEditor()
+
+
+        function initContentEditor() {
+            let lastEditRange = null;
+            const editor = document.getElementById('content-editor');
+            const insertButton = document.getElementById('content-insert');
+            function changeSelection(e) {
+                let selection = window.getSelection()
+                lastEditRange = selection.getRangeAt(0);
+            };
+            function insertText(text) {
+                let childList = [...editor.childNodes];
+                let childListLength = childList.length;
+                editor.focus();
+                let selection = window.getSelection();
+                let range = null;
+                if (lastEditRange) {
+                    selection.removeAllRanges();
+                    selection.addRange(lastEditRange);
+                }
+
+                if (selection.anchorNode.nodeType != Node.TEXT_NODE) {
+                    let textDom = document.createTextNode(text);
+                    if (childListLength == 1 && childList[0].nodeType == Node.COMMENT_NODE) {
+                        editor.insertBefore(textDom, childList[0].nextSibling)
+                    } else if (childListLength > 0 && selection.anchorOffset > 0) {
+                        for (var i = 0; i < childListLength; i++) {
+                            if (i == selection.anchorOffset - 1) {
+                                editor.insertBefore(textDom, childList[i].nextSibling)
+                                break;
+                            }
+                        }
+                    } else {
+                        editor.appendChild(textDom)
+                    }
+                    range = document.createRange()
+                    range.selectNodeContents(textDom)
+                    range.setStart(textDom, textDom.length)
+                } else {
+                    range = selection.getRangeAt(0)
+                    let textNode = range.startContainer;
+                    let rangeStartOffset = range.startOffset;
+                    textNode.insertData(rangeStartOffset, text)
+                    range.setStart(textNode, rangeStartOffset + text.length)
+                }
+                range.collapse(true)
+                selection.removeAllRanges()
+                selection.addRange(range)
+                lastEditRange = selection.getRangeAt(0);
+            }
+            editor.addEventListener('click', changeSelection, false);
+            editor.addEventListener('keyup', changeSelection, false);
+
+            insertButton.addEventListener('click', function(e) {
+                insertText('insert')
+            }, false)
+        }
+        
+
+        function initTextareaEditor() {
+            const editor = document.getElementById('textarea-editor');
+            const insertButton = document.getElementById('textarea-insert');
+
+            function insertText(text) {
+                editor.focus();
+                if (document.selection) {
+                    let sel = document.selection.createRange();
+                    sel.text = text;
+                } else if (typeof editor.selectionStart === 'number' && typeof editor.selectionEnd === 'number') {
+                    let startPos = editor.selectionStart,
+                    endPos = editor.selectionEnd,
+                    cursorPos = startPos,
+                    tmpStr = editor.value;
+
+                    editor.value = tmpStr.substring(0, startPos) + text + tmpStr.substring(endPos, tmpStr.length);
+                    cursorPos += text.length;
+                    editor.selectionStart = editor.selectionEnd = cursorPos;
+                } else {
+                    editor.value += text;
+                }
+                // editor.blur();
+            }
+
+            insertButton.addEventListener('click', function(e) {
+                insertText('insert')
+            }, false)
+        }
+    </script>
+</body>
+</html>
