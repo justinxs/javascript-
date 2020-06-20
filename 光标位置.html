@@ -34,10 +34,8 @@
         <textarea id="textarea-editor"></textarea>
         <button class="insert-button" id="textarea-insert">插入</button>
     </div>
-    
-
+    <script src="./emoji.js"></script>
     <script>
-
         initContentEditor()
         initTextareaEditor()
 
@@ -94,7 +92,7 @@
             editor.addEventListener('keyup', changeSelection, false);
 
             insertButton.addEventListener('click', function(e) {
-                insertText('insert')
+                insertText(emojiJson[Math.floor(Math.random() * emojiJson.length)])
             }, false)
         }
         
@@ -124,7 +122,7 @@
             }
 
             insertButton.addEventListener('click', function(e) {
-                insertText('insert')
+                insertText(emojiJson[Math.floor(Math.random() * emojiJson.length)])
             }, false)
         }
     </script>
