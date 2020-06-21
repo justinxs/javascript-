@@ -9,6 +9,9 @@
             padding: 0;
             margin: 0;
         }
+        ul, dl, ol {
+            list-style: none;
+        }
         .editor-container {
             display: flex;
             justify-content: flex-start;
@@ -22,28 +25,73 @@
             height: 100px;
             border: 1px solid #dddddd;
         }
+        .emoji-container {
+            position: relative;
+        }
+        .emoji-container:hover .emoji-list {
+            display: flex;
+        }
+        .emoji-list {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            display: none;
+            width: 400px;
+            height: 200px;
+            overflow-y: auto;
+            flex-wrap: wrap;
+            background-color: #ccc;
+        }
+        .emoji-item {
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .emoji-item:hover {
+            background-color: skyblue;
+        }
+        .emoji-text {
+            display: inline-block;
+            width: 60px;
+            background-color: skyblue;
+            text-align: center;
+            cursor: pointer;
+        }
+        .emoji-text:hover {
+            background-color: pink;
+        }
     </style>
 </head>
 <body>
     <div class="editor-container">
         <div id="content-editor" contenteditable="true"></div>
-        <button class="insert-button" id="content-insert">插入</button>
+        <div class="emoji-container">
+            <span class="emoji-text">表情</span>
+            <ul class="emoji-list"></ul>
+        </div>
     </div>
 
     <div class="editor-container">
         <textarea id="textarea-editor"></textarea>
-        <button class="insert-button" id="textarea-insert">插入</button>
+        <div class="emoji-container">
+            <span class="emoji-text">表情</span>
+            <ul class="emoji-list"></ul>
+        </div>
     </div>
     <script src="./emoji.js"></script>
     <script>
+        
+        let emojiHtml = emojiJson.reduce((str, code) => {
+            return str += `<li class="emoji-item">${code}</li>`
+        }, '');
+        
         initContentEditor()
         initTextareaEditor()
-
-
         function initContentEditor() {
             let lastEditRange = null;
             const editor = document.getElementById('content-editor');
-            const insertButton = document.getElementById('content-insert');
             function changeSelection(e) {
                 let selection = window.getSelection()
                 lastEditRange = selection.getRangeAt(0);
@@ -91,15 +139,17 @@
             editor.addEventListener('click', changeSelection, false);
             editor.addEventListener('keyup', changeSelection, false);
 
-            insertButton.addEventListener('click', function(e) {
-                insertText(emojiJson[Math.floor(Math.random() * emojiJson.length)])
+            const emojiList = [...document.querySelectorAll('.emoji-list')];
+            emojiList[0].innerHTML = emojiHtml;
+            emojiList[0].addEventListener('click', function(e) {
+                const target = e.target;
+                insertText(target.innerText)
             }, false)
         }
         
 
         function initTextareaEditor() {
             const editor = document.getElementById('textarea-editor');
-            const insertButton = document.getElementById('textarea-insert');
 
             function insertText(text) {
                 editor.focus();
@@ -121,8 +171,11 @@
                 // editor.blur();
             }
 
-            insertButton.addEventListener('click', function(e) {
-                insertText(emojiJson[Math.floor(Math.random() * emojiJson.length)])
+            const emojiList = [...document.querySelectorAll('.emoji-list')];
+            emojiList[1].innerHTML = emojiHtml;
+            emojiList[1].addEventListener('click', function(e) {
+                const target = e.target;
+                insertText(target.innerText)
             }, false)
         }
     </script>
