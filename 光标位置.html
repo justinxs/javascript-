@@ -41,6 +41,7 @@
             overflow-y: auto;
             flex-wrap: wrap;
             background-color: #ccc;
+            user-select: none;
         }
         .emoji-item {
             width: 25px;
@@ -143,7 +144,7 @@
             emojiList[0].innerHTML = emojiHtml;
             emojiList[0].addEventListener('click', function(e) {
                 const target = e.target;
-                insertText(target.innerText)
+                e.target.className === 'emoji-item' && insertText(target.innerText)
             }, false)
         }
         
@@ -175,7 +176,7 @@
             emojiList[1].innerHTML = emojiHtml;
             emojiList[1].addEventListener('click', function(e) {
                 const target = e.target;
-                insertText(target.innerText)
+                e.target.className === 'emoji-item' && insertText(target.innerText)
             }, false)
         }
     </script>
