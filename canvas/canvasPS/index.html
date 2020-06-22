@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="asset/css/index.css">
+    <title>在线抠图工具,简单ps---姜宏个人博客</title>
+    <meta name="keywords" content="图片编辑器,在线ps"/>
+    <meta name="description" content="在线图片编辑器，在线ps，html图片编辑器" />      
+</head>
+<body>
+    <div id="canvasbox" class="box"  ondrop="dropFile(event)" ondragover="allowDrop(event)">
+        
+    </div>
+    <div id="test"></div>
+    <script src="config.js"></script>
+    <script src="src/ui.js"></script>
+    <script src="src/canvasPs.js"></script>
+    <script>
+        /*
+            作者：姜宏
+            时间：2018-12-20
+            备注：欢迎大家使用，帮忙优化。本人是新手，自然入不了大神的法眼。但是乐意接受任何评论。
+            联系：weixn jherhao
+        */
+        //加载UI
+        var system=new System('#canvasbox');
+        system.loadui();
+        // system.alert('hello')
+        //加载画板
+
+        var c = document.querySelector('#canvas');
+        var ct = c.getContext('2d');
+        //创建PS对象
+        var ps=new CanvasPs(c);
+        
+    </script>
+    <script src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Filter</title>
+    <style type="text/css">
+        #wrap {
+            width: 600px;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+        #sourceDiv {
+            float: left;
+            border: 2px solid blue;
+        }
+        #canvasDiv {
+            float: right;
+            border: 2px solid red;
+        }
+    </style>
+</head>
+<body>
+    <!--最大的wrap-->
+    <div id="wrap">
+        <div id="sourceDiv"><!--图片-->
+            <img id="img" src="../images/mm1.jpg" />
+        </div>
+        <!--画布-->
+        <div id="canvasDiv">
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
+    <!--按钮组-->
+
+    <div id="btn-group">
+        <button type="button" id="invert-button">反色</button>
+        <button type="button" id="adjust-button">灰色调</button>
+        <button type="button" id="blur-button">模糊</button>
+        <button type="button" id="relief-button">浮雕</button>
+        <button type="button" id="diaoke-button">雕刻</button>
+        <button type="button" id="mirror-button">镜像</button>
+    </div>
+    
+    <script type="text/javascript">
+        window.onload = function() {
+            var img = document.getElementById("img");
+            var canvas = document.getElementById("canvas");
+            canvas.width = img.clientWidth;
+            canvas.height = img.clientHeight;
+            // get 2D context of canvas and draw image  
+            pen = canvas.getContext("2d");
+            pen.drawImage(img, 0, 0, canvas.width, canvas.height);//把图片放在画布上
+            //获取到所有的按钮  
+            var inButton = document.getElementById("invert-button");
+            var adButton = document.getElementById("adjust-button");
+            var blurButton = document.getElementById("blur-button");
+            var reButton = document.getElementById("relief-button");
+            var dkButton = document.getElementById("diaoke-button");
+            var mirrorButton = document.getElementById("mirror-button");
+
+            // 给按钮添加事件 
+            bindButtonEvent(inButton, "click", invertColor);
+            bindButtonEvent(adButton, "click", adjustColor);
+            bindButtonEvent(blurButton, "click", blurImage);
+            bindButtonEvent(reButton, "click", fudiaoImage);
+            bindButtonEvent(dkButton, "click", kediaoImage);
+            bindButtonEvent(mirrorButton, "click", mirrorImage);
+        }
+
+        //考虑到浏览器兼容
+        function bindButtonEvent(element, type, handler) {
+
+            if(element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else {
+                element.attachEvent('on' + type, handler); // for IE6,7,8  
+            }
+        }
+
+        //通用代码  得到画布上的图片像素数据 返回ImageData对象
+
+        function getUseData(canvas){ //形参为画布
+            //getImageData() 复制画布上指定矩形的像素数据 然后通过putImageData()将图像数据放回画布：
+            //返回ImageData对象，该对象拷贝了画布指定矩形的像素数据
+            //对于 ImageData 对象中的每个像素，都存在着四方面的信息,即 RGBA 值 eg:red=ImageData.data[0];
+            return pen.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        function getUseLen(canvas){ //形参为画布 
+            return canvas.width * canvas.height * 4;//图片的数据长度的像素值 图片是由像素组成的
+        }
+
+        //反色
+        function invertColor() {
+            var len = getUseLen(canvas);
+            var canvasData =getUseData(canvas);
+            //color/alpha 信息以数组形式存在，并存储于 ImageData 对象的 data 属性中
+            var binaryData = canvasData.data;//存图片的像素值
+            // 处理所有的像素  
+            gfilter.colorInvertProcess(binaryData, len);
+            // 将图像数据放回画布  
+            pen.putImageData(canvasData, 0, 0);
+        }
+
+        //灰色调
+
+        function adjustColor() {
+            var canvasData = getUseData(canvas);
+            var len=getUseLen(canvas);
+            var binaryData = canvasData.data;
+            gfilter.colorAdjustProcess(binaryData, len);
+            pen.putImageData(canvasData, 0, 0);
+        }
+
+        //模糊
+
+        function blurImage() {
+            var canvasData = getUseData(canvas);
+            var len=getUseLen(canvas);
+            gfilter.blurProcess(pen, canvasData);
+            pen.putImageData(canvasData, 0, 0);
+        }
+
+        //浮雕
+
+        function fudiaoImage() {
+            var canvasData = getUseData(canvas);
+            var len=getUseLen(canvas);
+            gfilter.reliefProcess(pen, canvasData);
+            pen.putImageData(canvasData, 0, 0);
+        }
+
+        //雕刻
+
+        function kediaoImage() {
+            var canvasData = getUseData(canvas);
+            var len=getUseLen(canvas);
+            gfilter.diaokeProcess(pen, canvasData);
+            pen.putImageData(canvasData, 0, 0);
+        }
+
+        //镜像
+
+        function mirrorImage() {
+            var canvasData = getUseData(canvas);
+            var len=getUseLen(canvas);
+            gfilter.mirrorProcess(pen, canvasData);
+            pen.putImageData(canvasData, 0, 0);
+        }
+
+    
+        var gfilter = {
+            type: "canvas",
+            name: "filters",
+            author: "zhigang",
+            getInfo: function() {
+                return this.author + ' ' + this.type + ' ' + this.name;
+            },
+            //取反色new pixel = RGB(255-r, 255-g, 255 - b)
+            colorInvertProcess: function(binaryData, l) {
+                for(var i = 0; i < l; i += 4) {
+                    var r = binaryData[i];
+                    var g = binaryData[i + 1];
+                    var b = binaryData[i + 2];
+                    
+                    binaryData[i] = 255 - r;
+                    binaryData[i + 1] = 255 - g;
+                    binaryData[i + 2] = 255 - b;
+                }
+            },
+            /*灰色调*/
+
+            colorAdjustProcess: function(binaryData, l) {
+                for(var i = 0; i < l; i += 4) {
+                    var r = binaryData[i];
+                    var g = binaryData[i + 1];
+                    var b = binaryData[i + 2];
+
+                    binaryData[i] = (r * 0.272) + (g * 0.534) + (b * 0.131);
+                    binaryData[i + 1] = (r * 0.349) + (g * 0.686) + (b * 0.168);
+                    binaryData[i + 2] = (r * 0.393) + (g * 0.769) + (b * 0.189);
+                }
+            },
+            copyImageData: function(context, src) {
+                var dst = context.createImageData(src.width, src.height);
+                dst.data.set(src.data);
+                return dst;
+            },
+            /*图像模糊*/
+
+            blurProcess: function(context, canvasData) {
+                console.log("Canvas Filter - blur process");
+                var tempCanvasData = this.copyImageData(context, canvasData);
+                var sumred = 0.0,
+                sumgreen = 0.0,
+                sumblue = 0.0;
+                for(var x = 0; x < tempCanvasData.width; x++) {
+                    for(var y = 0; y < tempCanvasData.height; y++) {
+                        // Index of the pixel in the array      
+                        var idx = (x + y * tempCanvasData.width) * 4;
+                        for(var subCol = -2; subCol <= 2; subCol++) {
+                            var colOff = subCol + x;
+                            if(colOff < 0 || colOff >= tempCanvasData.width) {
+                                colOff = 0;
+                            }
+                            for(var subRow = -2; subRow <= 2; subRow++) {
+                                var rowOff = subRow + y;
+                                if(rowOff < 0 || rowOff >= tempCanvasData.height) {
+                                    rowOff = 0;
+                                }
+                                var idx2 = (colOff + rowOff * tempCanvasData.width) * 4;
+                                var r = tempCanvasData.data[idx2 + 0];
+                                var g = tempCanvasData.data[idx2 + 1];
+                                var b = tempCanvasData.data[idx2 + 2];
+                                sumred += r;
+                                sumgreen += g;
+                                sumblue += b;
+                            }
+                        }
+                        // calculate new RGB value  
+                        var nr = (sumred / 25.0);
+                        var ng = (sumgreen / 25.0);
+                        var nb = (sumblue / 25.0);
+                        // clear previous for next pixel point  
+                        sumred = 0.0;
+                        sumgreen = 0.0;
+                        sumblue = 0.0;
+                        // assign new pixel value      
+                        canvasData.data[idx + 0] = nr; // Red channel      
+                        canvasData.data[idx + 1] = ng; // Green channel      
+                        canvasData.data[idx + 2] = nb; // Blue channel      
+                        canvasData.data[idx + 3] = 255; // Alpha channel      
+                    }
+                }
+            },
+            /**  * 浮雕效果 after pixel value - before pixel value + 128  */
+
+            reliefProcess: function(context, canvasData) {
+                console.log("Canvas Filter - relief process");
+                var tempCanvasData = this.copyImageData(context, canvasData);
+                for(var x = 1; x < tempCanvasData.width - 1; x++) {
+                    for(var y = 1; y < tempCanvasData.height - 1; y++) {
+                        // Index of the pixel in the array      
+                        var idx = (x + y * tempCanvasData.width) * 4;
+                        var bidx = ((x - 1) + y * tempCanvasData.width) * 4;
+                        var aidx = ((x + 1) + y * tempCanvasData.width) * 4;
+                        // calculate new RGB value  
+                        var nr = tempCanvasData.data[aidx + 0] - tempCanvasData.data[bidx + 0] + 128;
+                        var ng = tempCanvasData.data[aidx + 1] - tempCanvasData.data[bidx + 1] + 128;
+                        var nb = tempCanvasData.data[aidx + 2] - tempCanvasData.data[bidx + 2] + 128;
+                        nr = (nr < 0) ? 0 : ((nr > 255) ? 255 : nr);
+                        ng = (ng < 0) ? 0 : ((ng > 255) ? 255 : ng);
+                        nb = (nb < 0) ? 0 : ((nb > 255) ? 255 : nb);
+                        // assign new pixel value      
+                        canvasData.data[idx + 0] = nr; // Red channel      
+                        canvasData.data[idx + 1] = ng; // Green channel      
+                        canvasData.data[idx + 2] = nb; // Blue channel      
+                        canvasData.data[idx + 3] = 255; // Alpha channel      
+                    }
+                }
+            },
+            /**  雕刻效果  before pixel value - after pixel value + 128 */
+
+            diaokeProcess: function(context, canvasData) {
+                console.log("Canvas Filter - process");
+                var tempCanvasData = this.copyImageData(context, canvasData);
+                for(var x = 1; x < tempCanvasData.width - 1; x++) {
+                    for(var y = 1; y < tempCanvasData.height - 1; y++) {
+                        // Index of the pixel in the array      
+                        var idx = (x + y * tempCanvasData.width) * 4;
+                        var bidx = ((x - 1) + y * tempCanvasData.width) * 4;
+                        var aidx = ((x + 1) + y * tempCanvasData.width) * 4;
+                        // calculate new RGB value  
+                        var nr = tempCanvasData.data[bidx + 0] - tempCanvasData.data[aidx + 0] + 128;
+                        var ng = tempCanvasData.data[bidx + 1] - tempCanvasData.data[aidx + 1] + 128;
+                        var nb = tempCanvasData.data[bidx + 2] - tempCanvasData.data[aidx + 2] + 128;
+                        nr = (nr < 0) ? 0 : ((nr > 255) ? 255 : nr);
+                        ng = (ng < 0) ? 0 : ((ng > 255) ? 255 : ng);
+                        nb = (nb < 0) ? 0 : ((nb > 255) ? 255 : nb);
+                        // assign new pixel value      
+                        canvasData.data[idx + 0] = nr; // Red channel      
+                        canvasData.data[idx + 1] = ng; // Green channel      
+                        canvasData.data[idx + 2] = nb; // Blue channel      
+                        canvasData.data[idx + 3] = 255; // Alpha channel      
+                    }
+                }
+            },
+            //镜像
+
+            mirrorProcess: function(context, canvasData) {
+                console.log("Canvas Filter - process");
+                var tempCanvasData = this.copyImageData(context, canvasData);
+                // column  
+                for(var x = 0; x < tempCanvasData.width; x++) {
+                    // row  
+                    for(var y = 0; y < tempCanvasData.height; y++){
+                        // Index of the pixel in the array      
+                        var idx = (x + y * tempCanvasData.width) * 4;
+                        var midx = (((tempCanvasData.width - 1) - x) + y * tempCanvasData.width) * 4;
+                        // assign new pixel value      
+                        canvasData.data[midx + 0] = tempCanvasData.data[idx + 0]; // Red channel      
+                        canvasData.data[midx + 1] = tempCanvasData.data[idx + 1];; // Green channel      
+                        canvasData.data[midx + 2] = tempCanvasData.data[idx + 2];; // Blue channel      
+                        canvasData.data[midx + 3] = 255; // Alpha channel      
+                    }
+                }
+            },
+        };
+    </script>
+</body>
+</html>
