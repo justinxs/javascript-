@@ -47,10 +47,11 @@
         <button type="button" id="mosaic-button">马赛克</button>
         <button type="button" id="brown-button">褐色滤镜</button>
         <button type="button" id="picture-story-button">连环画</button>
-        <button type="button" id="freeze-button">冰冻滤镜</button>
+        <!-- <button type="button" id="freeze-button">冰冻滤镜</button> -->
         <button type="button" id="casting-button">熔铸滤镜</button>
         <button type="button" id="gaussian-button">高斯模糊</button>
         <button type="button" id="reset-button">还原</button>
+        <button type="button" id="download-button">下载</button>
     </div>
     
     <script type="text/javascript">
@@ -67,10 +68,11 @@
                 {id: 'mosaic-button', eventName: 'click', callback: mosaicImage},
                 {id: 'brown-button', eventName: 'click', callback: brownImage},
                 {id: 'picture-story-button', eventName: 'click', callback: pictureStoryImage},
-                {id: 'freeze-button', eventName: 'click', callback: freezeImage},
+                // {id: 'freeze-button', eventName: 'click', callback: freezeImage},
                 {id: 'casting-button', eventName: 'click', callback: castingImage},
                 {id: 'gaussian-button', eventName: 'click', callback: gaussianImage},
                 {id: 'reset-button', eventName: 'click', callback: resetImage},
+                {id: 'download-button', eventName: 'click', callback: download},
             ]
             var img = document.getElementById("img");
             var canvas = document.getElementById("canvas");
@@ -553,6 +555,20 @@
                 }
             },
         };
+
+
+        function download() {
+            canvas.toBlob(blob => {
+                let objectURL = window.URL.createObjectURL(blob),
+                save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a'),
+                event = document.createEvent('MouseEvents');
+                save_link.href = objectURL;
+                save_link.download = 'filters.png';
+                event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                save_link.dispatchEvent(event);
+                window.URL.revokeObjectURL(objectURL);
+            });
+        }
     </script>
 </body>
 </html>
