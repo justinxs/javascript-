@@ -487,14 +487,14 @@
          * base64 转blob文件流
          * @method base64AsBlob
          * @param {DOMString} dataURI base64文件字符串
-         * @param {String} type 输出的图片类型
+         * @param {String} mimeType 输出的MIME类型
          * @return {Object} 成功返回Blob 文件对象 
          */
 
-        function base64AsBlob(dataURI, type) {
+        function base64AsBlob(dataURI, mimeType) {
             let base64Msg = getBase64Content(dataURI),
             base64Content = base64Msg.content,
-            realType = type || base64Msg.type,
+            type = mimeType || base64Msg.mimeType,
             fileSize = base64Msg.size;
             
             if (window.atob) {
@@ -505,7 +505,7 @@
                 for (var i = 0; i < byteString.length; i++) {
                     ia[i] = byteString.charCodeAt(i);
                 }
-                return new Blob([ab], { type: realType });
+                return new Blob([ab], { type });
             } else {
                 let len = base64Content.length
                 , buffer = new Uint8Array(len / 4 * 3 | 0)
@@ -546,7 +546,7 @@
 		        	}
                 }
 
-                return new Blob([buffer], { type: realType });
+                return new Blob([buffer], { type });
             }
            
         }
@@ -555,14 +555,14 @@
          * 处理base64数据
          * @method getBase64Content
          * @param {DOMString} dataURI base64文件字符串
-         * @return {Object} type 文件类型， size文件大小， content文件内容
+         * @return {Object} mimeType 文件类型， size文件大小， content文件内容
          */
 
         function getBase64Content(dataURI) {
             const base64Reg = /^data:([\S]+);base64,/;
             if (!dataURI || !base64Reg.test(dataURI)) return console.error('dataURI is not define or dataURI is not DataURI')
             return {
-                type: base64Reg.exec(dataURI)[1] || '',
+                mimeType: base64Reg.exec(dataURI)[1] || '',
                 size: dataURI.replace(base64Reg, '').length / 4 * 3 | 0,
                 content: dataURI.replace(base64Reg, '')
             }
