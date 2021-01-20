@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>移动端布局</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        html, body {
+            width: 100%;
+        }
+        .layout {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .layout.one-page {
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .scroller {
+            width: 100%;
+            flex: none;
+        }
+        .scroller.fixed .scroller-content {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            z-index: 99;
+            background-color: inherit;
+        }
+        .scroller.scroll .scroller-content {
+            z-index: 99;
+        }
+        .flexiable {
+            flex: auto;
+        }
+        .flexiable-grow {
+            flex: 1 0 auto;
+        }
+        .flexiable-shrink {
+            flex: 0 1 auto;
+        }
+        .no-flexiable {
+            flex: none;
+        }
+    </style>
+</head>
+<body>
+    <main class="layout" id="layout">
+        <div class="scroller fixed">
+            <div class="scroller-content" style="background-color: black;height: 50px;"></div>
+        </div>
+        <div class="no-flexiable" style="height: 80px;"></div>
+        <div class="scroller scroll">
+            <div class="scroller-content keep" style="height: 40px;background-color: red;"></div>
+        </div>
+        <div class="no-flexiable" style="height: 80px;"></div>
+        <div class="scroll scroller">
+            <div class="scroller-content" style="height: 40px;background-color: skyblue;"></div>
+        </div>
+        <div class="no-flexiable" style="height: 80px;"></div>
+        <div class="scroll scroller">
+            <div class="scroller-content" style="height: 40px;background-color: pink;"></div>
+        </div>
+
+        <div class="flexiable-grow" style="height: 1000px;"></div>
+    </main>
+
+    <script>
+        let scrollerMap = [];
+        const pageMain = document.getElementById('layout');
+        const getUnitNumber = val => {
+            const unitHandle = val => {
+                const pxReg = /px$/;
+                const remReg = /rem$/;
+                if (pxReg.test(val)) {
+                    val = val.replace(pxReg, '')
+                } else if (remReg.test(val)) {
+                    const fz = parseFloat(window.getComputedStyle(document.documentElement, null).getPropertyValue('font-size'));
+                    val =  val.replace(remReg, '') * fz
+                }
+                return val
+            };
+            if (typeof val === 'string') {
+                val = unitHandle(val)
+            }
+            return +val
+        };
+        const getExistTop = staticTop => {
+            let existTop = 0;
+            if (staticTop !== undefined) {
+                existTop = getUnitNumber(staticTop)
+            } else {
+                const fixedViews = document.querySelectorAll('.scroller.fixed');
+                for (let index = 0; index < fixedViews.length; index++) {
+                    const element = fixedViews[index];
+                    existTop += element.getBoundingClientRect().height
+                }
+            }
+            return existTop
+        };
+        const pageScroll = (e, action = 'scroll') => {
+            const scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+            const scrollH = document.documentElement.scrollHeight;
+            const clientH = document.documentElement.clientHeight;
+            
+            const handler = () => {
+                const scrollers = pageMain.querySelectorAll('.scroller.scroll>.scroller-content');
+                const existTop = getExistTop();
+                scrollerMap = Array.prototype.slice.call(scrollers).reduce((arr, ref, index) => {
+                    if (ref) {
+                        const layout = ref.getBoundingClientRect();
+                        let originalStyle = ref.getAttribute('style') || '';
+                        let originalTop = scrollTop + layout.top;
+                        let keepPosition = ref.classList.contains('keep');
+                        let curScroller = null;
+                        if (scrollerMap.some(scroller => scroller.ref === ref && (curScroller = scroller))) {
+                            originalStyle = curScroller.originalStyle
+                            originalTop = curScroller.originalTop
+                        }
+                        arr.push({ref, originalTop, originalStyle, layout, keepPosition})
+                    }
+                    return arr
+                }, []).sort((a, b) => a.originalTop - b.originalTop);
+
+                for (let index = 0; index < scrollerMap.length; index++) {
+                    const scroller = scrollerMap[index];
+                    const prevScroller = scrollerMap[index - 1];
+                    const nextScroller = scrollerMap[index + 1];
+                    const dataFixed = scroller.ref.querySelector('[data-fixed]');
+                    const keepPositionHeight = scrollerMap.reduce((sum, er, i) => sum += er.keepPosition && index > i ? er.layout.height : 0, 0);
+                    const prevHeight = prevScroller && !prevScroller.keepPosition ? prevScroller.layout.height : 0;
+                    const dataFixedClass = dataFixed && dataFixed.getAttribute('data-fixed');
+                    const styleObj = {
+                        position: scroller.ref.style.position,
+                        left: scroller.ref.style.left,
+                        right: scroller.ref.style.right,
+                        top: scroller.ref.style.top,
+                        zIndex: scroller.ref.style.zIndex
+                    };
+                    // 当前scroller定位所需滚动距离
+                    const activeTop = scroller.originalTop - (existTop + keepPositionHeight);
+                    // 下一个scroller是否已经到达当前scroller的底部
+                    const nextIsFixed = nextScroller && (scrollTop >= nextScroller.originalTop - (existTop + keepPositionHeight + scroller.layout.height));
+                    if (scrollTop >= activeTop && (!nextIsFixed || scroller.keepPosition)) {
+                        // 定位的高度 = 已存在的高度 + 已定位并保留定位的高度
+                        let top = (existTop + keepPositionHeight).toFixed(2);
+                        let curStyle = {
+                            position: 'fixed',
+                            left: '0px',
+                            right: '0px',
+                            top: top + 'px',
+                            zIndex: 99 + index
+                        };
+                        
+                        // 去重避免重复修改style和class
+                        if (Object.keys(curStyle).some(prop => styleObj[prop] != curStyle[prop])) {
+                            Object.keys(curStyle).forEach(prop => scroller.ref.style[prop] = curStyle[prop])
+                        }
+                        dataFixedClass && !dataFixed.classList.contains(dataFixedClass) && dataFixed.classList.add(dataFixedClass);
+                    } else {
+                        // 去重避免重复修改style和class
+                        let curStyle = scroller.ref.getAttribute('style') || '';
+                        if (curStyle !== scroller.originalStyle) {
+                            scroller.ref.setAttribute('style', scroller.originalStyle)
+                        }
+                        dataFixedClass && dataFixed.classList.contains(dataFixedClass) && dataFixed.classList.remove(dataFixedClass);
+                    }
+                }
+            };
+            
+            handler();
+        };
+        const pageResize = e => {
+            const innerHeight = window.innerHeight;
+            const innerWidth = window.innerWidth;
+            const onePage = document.querySelector('.laoyt.one-page');
+            pageMain.style.minHeight = innerHeight + 'px';
+            if (onePage) {
+                onePage.style.height = innerHeight + 'px';
+            }
+        };
+        const setScrollers = () => {
+            const scrollers = document.querySelectorAll('.scroller');
+            for (let index = 0; index < scrollers.length; index++) {
+                const scroller = scrollers[index];
+                const position = scroller.querySelector('.scroller-content').getBoundingClientRect();
+                scroller.style.height = position.height + 'px';
+            }
+        };
+
+        setScrollers();
+        pageScroll(null, 'init');
+        pageResize(null);
+        window.addEventListener('scroll', pageScroll);
+        window.addEventListener('resize', pageResize);
+    </script>
+</body>
+</html>
