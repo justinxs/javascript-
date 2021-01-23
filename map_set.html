@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Set数据结构</title>
+</head>
+<body>
+    <script>
+        // ES6 提供了新的数据结构 Set。它类似于数组，但是成员的值都是唯一的，没有重复的值
+        // new Set(Iterator对象)
+        const setData = new Set([1, 2, 3, 4, 5, 5, 5, 5]);
+        console.log([...setData]);
+        console.log(setData.size, 'size');
+        console.log(setData.add(6), 'add');
+        console.log(setData.delete(6), 'delete')
+        console.log(setData.has(1), 'has')
+        console.log(setData.clear(), 'clear')
+        // 字符串
+        console.log(new Set('aabbcc'))
+
+        // Set.prototype.keys()：返回键名的遍历器
+        // Set.prototype.values()：返回键值的遍历器
+        // Set.prototype.entries()：返回键值对的遍历器
+        // Set.prototype.forEach()：使用回调函数遍历每个成员
+        // Set的遍历顺序就是插入顺序
+        let setData2 = new Set(['red', 'green', 'blue']);
+        console.log(setData2.keys(), 'keys')
+        console.log(setData2.values(), 'values')
+        for (const item of setData2.entries()) {
+            console.log(item, 'entries')
+        }
+        for (const item of setData2) {
+            console.log(item, 'for of')
+        }
+        setData2.forEach((value, key) => console.log('value:' + value, 'key:' + key))
+
+
+        // WeakSet 的成员只能是不重复的对象（弱引用-引用计数不+1，对象在外部消失，内部自动消失）
+        // 由于WeakSet成员随时可能消失的特性，设计上 没有size和forEach属性，没有办法遍历它的成员
+        // 主要作用于临时对象的存储无需考虑内存释放
+
+        const foos = new WeakSet()
+        class Foo {
+            constructor() {
+                foos.add(this)
+            }
+            method () {
+                if (!foos.has(this)) {
+                    throw new TypeError('Foo.prototype.method 只能在Foo的实例上调用！');
+                }
+            }
+        }
+
+        // Map 结构提供了“值—值”的对应,mapItem = ['name', '张三'] => key('name')value('张三')
+        // new Map(Iterator对象)
+
+        // size 属性
+        // Map.prototype.set(key, value)
+        // Map.prototype.get(key)
+        // Map.prototype.has(key)
+        // Map.prototype.delete(key)
+        // Map.prototype.clear()
+        const map = new Map();
+        map.set('foo', true);
+        map.set('bar', false);
+        console.log(map.size, 'size')
+        console.log(map.set('hao', 'hahha'), 'set')
+        console.log(map.get('hao'), 'get')
+        console.log(map.has('hao'), 'has')
+        console.log(map.delete('hao'), 'delete')
+        console.log(map.clear(), 'clear')
+        console.log(map)
+
+        // Map.prototype.keys()：返回键名的遍历器。
+        // Map.prototype.values()：返回键值的遍历器。
+        // Map.prototype.entries()：返回所有成员的遍历器。
+        // Map.prototype.forEach()：遍历 Map 的所有成员。
+        const map2 = new Map([['name', 'tom'], ['gender', 'male'], ['age', 18]])
+        console.log(map2)
+        console.log(map2.keys(), 'keys')
+        console.log(map2.values(), 'values')
+        console.log(map2.entries(), 'entries')
+        for (const [key, value] of map2) {
+            console.log(key + ':' + value, 'for of')
+        }
+        map2.forEach((value, key, map) => console.log('key:' + key, 'value:' + value))
+
+
+
+        // WeakMap只接受对象作为键名（null除外），不接受其他类型的值作为键名
+        // WeakMap 弱引用的只是键名，而不是键值。键值依然是正常引用
+        (function () {
+            const wm = new WeakMap();
+            let key = {};
+            let obj = {foo: 1};
+
+            wm.set(key, obj);
+            obj = null;
+            wm.get(key)
+            // Object {foo: 1}
+        })()
+        
+    </script>
+</body>
+</html>
