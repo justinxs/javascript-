@@ -5,9 +5,60 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>浮点数运算</title>
+    <style>
+        ul {
+            list-style: none;
+        }
+        .plant {
+            display: flex;
+            align-items: center;
+        }
+        .data-list {
+            display: flex;
+            margin-right: 50px;
+        }
+        .data-item {
+            display: flex;
+            margin-right: 10px;
+        }
+        input {
+            margin: 0 4px;
+        }
+        #action {
+            height: 22px;
+            line-height: 22px;
+            margin-right: 10px;
+        }
+        #btn {
+            height: 22px;
+            line-height: 22px;
+        }
+    </style>
 </head>
 <body>
-    
+    <div class="plant">
+        <ul id="list" class="data-list">
+            <li class="data-item">
+                <button class="del">-</button>
+                <input type="number">
+                <button class="add">+</button>
+            </li>
+            <li class="data-item">
+                <button class="del">-</button>
+                <input type="number">
+                <button class="add">+</button>
+            </li>
+        </ul>
+        
+        <select name="" id="action" value="">
+            <option value="add">相加</option>
+            <option value="subtract">相减</option>
+            <option value="multiply">相乘</option>
+            <option value="divide">相除</option>
+        </select>
+        <button id="btn">等于</button>
+    </div>
+    <div id="result"></div>
     <script>
         /**
          * 浮点数运算
@@ -40,7 +91,55 @@
         console.log(floatOperate('add', 0.1, 0.2), 'add', 0.1 + 0.2);
         console.log(floatOperate('subtract', 0.3, 0.1), 'subtract', 0.3 - 0.1);
         console.log(floatOperate('multiply', 0.3, 0.78), 'multiply', 0.3 * 0.78);
-        console.log(floatOperate('divide', 0.3, 0.1), 'add', 0.3 / 0.1);
+        console.log(floatOperate('divide', 0.3, 0.1), 'divide', 0.3 / 0.1);
+
+        const list = document.getElementById('list');
+        const btn = document.getElementById('btn');
+        const result = document.getElementById('result')
+        list.addEventListener('click', e => {
+            if (e.target.nodeName === 'BUTTON') {
+                let isDel = e.target.classList.contains('del');
+                let newChild = document.createElement('li');
+                newChild.classList.add('data-item');
+                let childDel = document.createElement('button');
+                childDel.classList.add('del')
+                childDel.innerText = '-';
+                let childInput = document.createElement('input');
+                childInput.type = 'number';
+                let childAdd = document.createElement('button');
+                childAdd.classList.add('add')
+                childAdd.innerText = '+';
+                newChild.appendChild(childDel)
+                newChild.appendChild(childInput)
+                newChild.appendChild(childAdd)
+                isDel ? list.removeChild(e.target.parentNode) : list.appendChild(newChild)
+            }
+        })
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const inputs = list.querySelectorAll('input');
+            const actionDom = document.getElementById('action');
+            let action = actionDom.value;
+            let data = [...inputs].filter(i => i.value !== '').map(i => +i.value)
+            let res = floatOperate(action, ...data);
+            let originalRes = data.length > 1 ? data.reduce((r, val) => {
+                switch (action) {
+                    case 'add':
+                        return r + val
+                    case 'subtract':
+                        return r - val
+                    case 'multiply':
+                        return r * val
+                    case 'divide':
+                        return r / val
+                    default:
+                        break;
+                }
+            }) : data[0];
+            
+            result.innerHTML = `<h3>结果：${res}</h3><h3>原始结果：${originalRes}</h3>`
+        })
+
     </script>
 </body>
 </html>
