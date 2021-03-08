@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浮点数运算</title>
+</head>
+<body>
+    
+    <script>
+        // 浮点数相乘
+        function floatNumberAdd() {
+            const data = [...arguments];
+            const add = (a, b) => {
+                const aFloat = String(a).split('.')[1] || '';
+                const bFloat = String(b).split('.')[1] || '';
+                const maxLen = (aFloat.length > bFloat.length ? aFloat.length : bFloat.length) + 1
+                const maxPow = Math.pow(10, maxLen);
+                return (a * maxPow + b * maxPow) / maxPow
+            };
+            return data.length > 1 ? data.reduce((re, num) => add(re, num)) : data[0]
+        }
+        // 浮点数相减
+        function floatNumberSubtract() {
+            const data = [...arguments];
+            const subtract = (a, b) => {
+                const aFloat = String(a).split('.')[1] || '';
+                const bFloat = String(b).split('.')[1] || '';
+                const maxLen = (aFloat.length > bFloat.length ? aFloat.length : bFloat.length) + 1
+                const maxPow = Math.pow(10, maxLen);
+                return (a * maxPow - b * maxPow) / maxPow
+            };
+            return data.length > 1 ? data.reduce((re, num) => subtract(re, num)) : data[0]
+        }
+        // 浮点数相乘
+        function floatNumberMultiply() {
+            const data = [...arguments];
+            const multiply = (a, b) => {
+                const aFloat = String(a).split('.')[1] || '';
+                const bFloat = String(b).split('.')[1] || '';
+                const aPow = Math.pow(10, aFloat.length + 1);
+                const bPow = Math.pow(10, bFloat.length + 1);
+                return (a * aPow) * (b * bPow) / (aPow * bPow)
+            };
+            return data.length > 1 ? data.reduce((re, num) => multiply(re, num)) : data[0]
+        }
+        // 浮点数相除
+        function floatNumberDivide() {
+            const data = [...arguments];
+            const divide = (a, b) => {
+                const aFloat = String(a).split('.')[1] || '';
+                const bFloat = String(b).split('.')[1] || '';
+                const aPow = Math.pow(10, aFloat.length + 1);
+                const bPow = Math.pow(10, bFloat.length + 1);
+                return (a * aPow) / (b * bPow) * (bPow / aPow)
+            };
+            return data.length > 1 ? data.reduce((re, num) => divide(re, num)) : data[0]
+        }
+        /**
+         * 浮点数运算
+         * @param {String} action add => 相加 subtract => 相减  multiply => 相乘 divide => 相除
+         */
+        function floatOperate(action, ...data) {
+            if (!['add', 'subtract', 'multiply', 'divide'].includes(action) || !data) return;
+            const handler = (a, b) => {
+                const aFloat = String(a).split('.')[1] || '';
+                const bFloat = String(b).split('.')[1] || '';
+                const maxLen = (aFloat.length > bFloat.length ? aFloat.length : bFloat.length) + 1;
+                const aPow = Math.pow(10, aFloat.length + 1);
+                const bPow = Math.pow(10, bFloat.length + 1);
+                const maxPow = Math.pow(10, maxLen);
+                switch (action) {
+                    case 'add':
+                        return (a * maxPow + b * maxPow) / maxPow
+                    case 'subtract':
+                        return (a * maxPow - b * maxPow) / maxPow
+                    case 'multiply':
+                        return (a * aPow) * (b * bPow) / (aPow * bPow)
+                    case 'divide':
+                        return (a * aPow) / (b * bPow) * (bPow / aPow)
+                    default:
+                        break;
+                }
+            }
+            return data.length > 1 ? data.reduce((re, num) => handler(re, num)) : data[0]
+        }
+
+        console.log(floatOperate('add', 0.1, 0.2), 'add', 0.1 + 0.2);
+        console.log(floatOperate('subtract', 0.3, 0.1), 'subtract', 0.3 - 0.1);
+        console.log(floatOperate('multiply', 0.3, 0.78), 'multiply', 0.3 * 0.78);
+        console.log(floatOperate('divide', 0.3, 0.1), 'add', 0.3 / 0.1);
+    </script>
+</body>
+</html>
