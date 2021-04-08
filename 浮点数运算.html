@@ -63,26 +63,27 @@
     <div id="result"></div>
     <script>
         /**
-         * 浮点数运算
+         * 浮点数运算 先转换成整数再做运算
          * @param {String} action add => 相加 subtract => 相减  multiply => 相乘 divide => 相除
          */
         function floatOperate(action, ...data) {
             if (!['add', 'subtract', 'multiply', 'divide'].includes(action) || !data) return;
+            const getFloat = num => String(num).split('.')[1] || '';
+            const getPow = (exponent, base = 10) => Math.pow(base, exponent);
             const handler = (action, a, b) => {
-                const aFloat = String(a).split('.')[1] || '';
-                const bFloat = String(b).split('.')[1] || '';
-                const aPow = Math.pow(10, aFloat.length + 1);
-                const bPow = Math.pow(10, bFloat.length + 1);
-                const maxPow = Math.pow(10, Math.max(aFloat.length, bFloat.length) + 1);
+                const aFloat = getFloat(a);
+                const bFloat = getFloat(b);
+                let aPow = 1, bPow = 1, maxPow = 1;
                 switch (action) {
                     case 'add':
-                        return (a * maxPow + b * maxPow) / maxPow
                     case 'subtract':
-                        return (a * maxPow - b * maxPow) / maxPow
+                        maxPow = getPow(Math.max(aFloat.length, bFloat.length))
+                        return action === 'add' ? (a * maxPow + b * maxPow) / maxPow : (a * maxPow - b * maxPow) / maxPow
                     case 'multiply':
-                        return (a * aPow) * (b * bPow) / (aPow * bPow)
                     case 'divide':
-                        return (a * aPow) / (b * bPow) * (bPow / aPow)
+                        aPow = getPow(aFloat.length);
+                        bPow = getPow(bFloat.length);
+                        return  action === 'multiply' ? (a * aPow) * (b * bPow) / (aPow * bPow) : (a * aPow * bPow) / (b * bPow * aPow)
                     default:
                         break;
                 }

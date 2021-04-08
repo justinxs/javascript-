@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lib</title>
+</head>
+<body>
+    <script>
+        
+        // 是否是函数
+        const isFunction = fn => fn && fn instanceof Function;
+
+        // 是否是dom元素
+        const isDom = dom => dom instanceof HTMLElement;
+
+        // 获取数据类型  如： String, Number...
+        const getDataType = data => {
+            const stringType = Object.prototype.toString.call(val);
+            const matches = /^\[\S+ (\S+)\]$/.exec(stringType);
+            return matches ? (matches[1] === 'Number' && isNaN(val) ? 'NaN' : matches[1]) : stringType
+        }
+
+        // 数字字符
+        const getNumber = val => {
+            if (val !== '') {
+                val = val.replace(/\D/g, '')
+            }
+            return val && parseInt(val, 10)
+        };
+
+        // 浮点数字符
+        const getFloatNumber = (val, radixPoint) => {
+            const setRadixPoint = (val, radixPoint) => {
+                let floatStr = val || val === 0 ? val.toString().replace(/[^0-9\\.\\^0-9]/ig, '').replace(/^\./, '') : ''
+                if (radixPoint && getDataType(radixPoint) === 'Number') {
+                    val = floatStr.split('.').slice(0, 2).map((str, i) => i == 1 ? str.slice(0, radixPoint) : str).join('.')
+                } else {
+                    val = floatStr.split('.').slice(0, 2).join('.')
+                }
+                return val
+            };
+            return val !== '' ? setRadixPoint(val, radixPoint) : val
+        };
+
+        // 正负整数字符
+        const getPlusMinusNumber = (val, maxLen) => {
+            if (val !== '') {
+                const reg = new RegExp(maxLen > 0 ? `^-?[0-9]{0,${maxLen}}` : `^-?[0-9]*`);
+                let matches = reg.exec(val.replace(/(?<=-)0*|^0/, ''));
+                val = matches ? matches[0] : ''
+            }
+            return val
+        };
+
+        // 正负浮点数字符
+        const getPlusMinusFloat = (val, radixPoint) => {
+            if (val !== '') {
+                const reg = new RegExp(radixPoint > 0 ? `^-?[0-9]*\.?[0-9]{0,${radixPoint}}` : `^-?[0-9]*\.?[0-9]*`);
+                let matches = reg.exec(val.replace(/(?<=-)0*|^0/, ''));
+                val = matches ? matches[0] : ''
+            }
+            return val
+        };
+
+        // 防抖节流函数
+        const debounce = (callback, wait = 50, immediate) => {
+            let timer = null;
+            return function(...args) {
+                if (timer) clearTimeout(timer)
+                if (immediate && !timer) {
+                    callback.apply(this, args)
+                }
+                timer = setTimeout(() => {
+                    callback.apply(this, args)
+                }, wait)
+            }
+        }
+
+        let inputTimer = null;
+        // 正整数输入
+        const numberInput = (e, {source, key, limitFn, interval = 50, callback}) => {
+            const target = e.target, value = target.value;
+            inputTimer && clearTimeout(inputTimer)
+            inputTimer = setTimeout(() => {
+                let result = isFunction(limitFn) ? limitFn(getNumber(value)) : getNumber(value);
+                e.target.value = source[key] = result;
+                isFunction(callback) && callback(result)
+            }, interval);
+        };
+
+        // 正浮点数输入
+        const floatInput = (e, {source, key, radixPoint, limitFn, interval = 50, callback}) => {
+            const target = e.target, value = target.value;
+            inputTimer && clearTimeout(inputTimer)
+            inputTimer = setTimeout(() => {
+                let result = isFunction(limitFn) ? limitFn(getFloatNumber(value, radixPoint)) : getFloatNumber(value, radixPoint);
+                e.target.value = source[key] = result
+                isFunction(callback) && callback(result)
+            }, interval);
+        };
+
+        // 正负整数输入
+        const plusMinusInput = (e, {source, key, maxLen, limitFn, interval = 50, callback}) => {
+            const target = e.target, value = target.value;
+            inputTimer && clearTimeout(inputTimer)
+            inputTimer = setTimeout(() => {
+                let result =  isFunction(limitFn) ? limitFn(getPlusMinusNumber(value, maxLen)) : getPlusMinusNumber(value, maxLen);
+                e.target.value = source[key] = result
+                isFunction(callback) && callback(result)
+            }, interval);
+        };
+
+        // 正负浮点数输入
+        const plusMinusFloatInput = (e, {source, key, radixPoint, limitFn, interval = 50}) => {
+            const target = e.target, value = target.value;
+            inputTimer && clearTimeout(inputTimer)
+            inputTimer = setTimeout(() => {
+                let result =  isFunction(limitFn) ? limitFn(getPlusMinusFloat(value, radixPoint)) : getPlusMinusFloat(value, radixPoint);
+                e.target.value = source[key] = result
+                isFunction(callback) && callback(result)
+            }, interval);
+        };
+
+        // 中文输入
+        const compositeInput = (target, callback) => {
+            const isString = val => getDataType(val) === 'String';
+            if (!isDom(target = isString(target) ? document.querySelector(target) : target)) return;
+
+            let flag = false;
+            let cp_start_cb = e => flag = true;
+            let cp_end_cb = e => {
+                flag = false;
+                isFunction(callback) && callback(e.target, 'compositionend')
+            };
+            let input_cb = e => {
+                !flag && isFunction(callback) && callback(e.target, 'input')
+            };
+            let blur_cb = e => isFunction(callback) && callback(e.target, 'blur');
+
+            target.addEventListener('compositionstart', function (e) {
+                cp_start_cb(e)
+            }, false);
+            target.addEventListener('compositionend', function (e) {
+                cp_end_cb(e)
+            }, false);
+            target.addEventListener('input', function (e) {
+                input_cb(e)
+            }, false);
+            target.addEventListener('blur', function (e) {
+                blur_cb(e)
+            }, false);
+            
+            return {
+                target,
+                clear() {
+                    target.removeEventListener('compositionstart', cp_start_cb, false);
+                    target.removeEventListener('compositionend', cp_end_cb, false);
+                    target.removeEventListener('input', input_cb, false);
+                    target.removeEventListener('blur', blur_cb, false);
+                }
+            }
+        }
+
+        /**
+         * 浮点数运算
+         * @param {String} action add => 相加 subtract => 相减  multiply => 相乘 divide => 相除
+         */
+        const floatOperate = (action, ...data) => {
+            if (!['add', 'subtract', 'multiply', 'divide'].includes(action) || !data) return;
+            const getFloat = num => String(num).split('.')[1] || '';
+            const getPow = (exponent, base = 10) => Math.pow(base, exponent);
+            const handler = (action, a, b) => {
+                const aFloat = getFloat(a);
+                const bFloat = getFloat(b);
+                let aPow = bPow = maxPow = 1;
+                switch (action) {
+                    case 'add':
+                    case 'subtract':
+                        maxPow = getPow(Math.max(aFloat.length, bFloat.length) + 1)
+                        return action === 'add' ? (a * maxPow + b * maxPow) / maxPow : (a * maxPow - b * maxPow) / maxPow
+                    case 'multiply':
+                    case 'divide':
+                        aPow = getPow(aFloat.length + 1);
+                        bPow = getPow(bFloat.length + 1);
+                        return  action === 'multiply' ? (a * aPow) * (b * bPow) / (aPow * bPow) : (a * aPow) / (b * bPow) * (bPow / aPow)
+                    default:
+                        break;
+                }
+            }
+            return data.length > 1 ? data.reduce((re, num) => handler(action, re, num)) : data[0]
+        }
+
+        
+    </script>
+</body>
+</html>
