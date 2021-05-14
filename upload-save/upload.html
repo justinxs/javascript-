@@ -655,9 +655,9 @@
             let filename = name || 'download';
 
             let getDataPromise = new Promise((resolve, reject) => {
-                let result = (isBlob || isFile) ? 
-                file : 
-                isDataURI ? base64AsBlob(file) : getStaticFile(file, 'blob').then(data => data.data);
+                let result = (isBlob || isFile) 
+                ? file 
+                : isDataURI ? base64AsBlob(file) : getStaticFile(file, 'blob').then(data => data.data);
 
                 return resolve(result)
             })
@@ -665,8 +665,8 @@
             return getDataPromise.then(data => {
                 filename += '.' + (data.type ? data.type.split('/')[1] : 'png');
 
-                if (ieKit) {
-                    navigator.msSaveBlob && navigator.msSaveBlob(data, filename)
+                if (navigator.msSaveBlob) {
+                    navigator.msSaveBlob(data, filename)
                 } else {
                     let objectURL = window.URL.createObjectURL(data),
                     save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a'),
