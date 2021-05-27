@@ -1,8 +1,5 @@
-const http = require('http')
-const fs = require('fs')
-const qs = require('querystring')
-const path = require('path')
 const { URL } = require('url')
+const qs = require('querystring')
 
 class Request {
     constructor(req, proxy = false) {
@@ -263,19 +260,4 @@ class Request {
     }
 }
 
-
-
-http.createServer(function(req,res){
-    const request = new Request(req);
-    console.log(request.path, request.host, request.hostname, request.url, request.querystring)
-    fs.readFile(path.resolve(__dirname, '.' + request.path),function(err, data){
-        if(err){ 
-            console.log(err);
-            res.write('<h3>404</h3>');
-            res.end();
-        }else{
-            res.write(data);
-            res.end(); 
-        }
-    })
-}).listen(8001, '0.0.0.0');
+module.exports = Request
