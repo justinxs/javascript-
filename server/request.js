@@ -1,5 +1,6 @@
 const { URL } = require('url')
 const qs = require('querystring')
+const net = require('net')
 
 class Request {
     constructor(req, proxy = false) {

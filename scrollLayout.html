@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <title>滚动吸附</title>
     <style>
         * {
@@ -11,6 +11,9 @@
             margin: 0;
         }
         footer {
+            line-height: 40px;
+            text-align: center;
+            color: #fff;
             background-color: red;
         }
         main {
@@ -29,7 +32,7 @@
             </div>
             <div style="height: 30vh;"></div>
             <header class="scroll-fixed">
-                <div class="fixed-content" keep-position style="height: 40px;line-height: 40px;text-align: center;color: #fff;background-color: red;">头部</div>
+                <div class="fixed-content" style="height: 40px;line-height: 40px;text-align: center;color: #fff;background-color: red;">头部</div>
             </header>
             <main>
                 <div style="height: 30vh;background-color: yellow;"></div>
@@ -159,6 +162,9 @@
             window.addEventListener('scroll', scrollHandle)
         }
         init()
+        window.addEventListener('resize', e => {
+            setFixedParentHeight()
+        })
     </script>
 </body>
 </html>
