@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滚动吸附</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        footer {
+            background-color: red;
+        }
+        main {
+            min-height: 100vh;
+        }
+        .pink-bg {
+            background-color: pink!important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="layout">
+            <div class="static-fixed">
+                <div class="fixed-content" style="height: 50px;position: fixed;width: 100%;background-color: black;"></div>
+            </div>
+            <div style="height: 30vh;"></div>
+            <header class="scroll-fixed">
+                <div class="fixed-content" keep-position style="height: 40px;line-height: 40px;text-align: center;color: #fff;background-color: red;">头部</div>
+            </header>
+            <main>
+                <div style="height: 30vh;background-color: yellow;"></div>
+                <div class="scroll-fixed">
+                    <div class="fixed-content" style="background-color: skyblue;height: 10vh;">
+                        <div data-fixed="pink-bg" style="height: 20px;text-align: center;line-height: 20px;color: #fff;">内部</div>
+                    </div>
+                </div>
+                <div style="height: 180vh;"></div>
+            </main>
+            <footer>底部</footer>
+        </div>
+    </div>
+    <script>
+        let scrollFixedViews = [];
+
+        function setFixedParentHeight(selector = '.static-fixed,.scroll-fixed') {
+            const fixedParents = document.querySelectorAll(selector);
+            let i = 0, len = fixedParents.length;
+            for (; i < len; i++) {
+                const el = fixedParents[i];
+                const content = el.querySelector('.fixed-content')
+                el.style.height = content.getBoundingClientRect().height + 'px'
+            }
+        }
+
+        function getStaticFixedHeight(selector = '.static-fixed') {
+            const staticFixedParents = document.querySelectorAll(selector);
+            let height = 0, i = 0, len = staticFixedParents.length;
+            for (; i < len; i++) {
+                height += staticFixedParents[i].getBoundingClientRect().height
+            }
+            return height
+        }
+
+        function getScrollFixedViews(selector = '.scroll-fixed>.fixed-content', oldViews) {
+            const scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+            const scrollers = document.querySelectorAll(selector);
+            const collectScroller = (collection, scroller) => {
+                if (scroller) {
+                    const layout = scroller.getBoundingClientRect();
+                    let originalStyle = scroller.getAttribute('style') || '';
+                    let originalTop = scrollTop + layout.top;
+                    let keepPosition = scroller.hasAttribute('keep-position');
+                    let curView = null;
+                    if (oldViews.some(view => view.scroller === scroller && (curView = view))) {
+                        originalStyle = curView.originalStyle
+                        originalTop = curView.originalTop
+                    }
+                    collection.push({scroller, originalTop, originalStyle, layout, keepPosition})
+                }
+                return collection
+            }
+            const scrollerMap = Array.prototype.slice.call(scrollers)
+                .reduce(collectScroller, [])
+                .sort((a, b) => a.originalTop - b.originalTop);
+
+            return scrollerMap
+        }
+
+        function scrollHandle() {
+            const scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+            const scrollH = document.documentElement.scrollHeight;
+            const clientH = document.documentElement.clientHeight;
+            const existTop = getStaticFixedHeight('.static-fixed');
+            
+            scrollFixedViews = getScrollFixedViews('.scroll-fixed>.fixed-content', scrollFixedViews);
+
+            for (let index = 0; index < scrollFixedViews.length; index++) {
+                const view = scrollFixedViews[index];
+                const scroller = view.scroller;
+                const prevView = scrollFixedViews[index - 1];
+                const nextView = scrollFixedViews[index + 1];
+                const keepPositionHeight = scrollFixedViews.reduce((sum, v, i) => sum += v.keepPosition && index > i ? v.layout.height : 0, 0);
+                const prevHeight = prevView && !prevView.keepPosition ? prevView.layout.height : 0;
+                const dataFixed = scroller.querySelector('[data-fixed]');
+                const dataFixedClass = dataFixed && dataFixed.getAttribute('data-fixed');
+                const styleObj = {
+                    position: scroller.style.position,
+                    left: scroller.style.left,
+                    right: scroller.style.right,
+                    top: scroller.style.top,
+                    zIndex: scroller.style.zIndex
+                };
+
+                // 当前scroller定位所需滚动距离
+                const activeTop = view.originalTop - (existTop + keepPositionHeight);
+                // 下一个scroller是否已经到达当前scroller的底部
+                const nextIsFixed = nextView && (scrollTop >= nextView.originalTop - (existTop + keepPositionHeight + view.layout.height));
+
+                if (scrollTop >= activeTop && (!nextIsFixed || view.keepPosition)) {
+                    // 定位的高度 = 已存在的高度 + 已定位并保留定位的高度
+                    let top = (existTop + keepPositionHeight).toFixed(2);
+                    let curStyle = {
+                        position: 'fixed',
+                        left: '0px',
+                        right: '0px',
+                        top: top + 'px',
+                        zIndex: 99 + index
+                    };
+                    let styleAttributes = Object.keys(curStyle);
+                    
+                    // 去重避免重复修改style和class
+                    if (styleAttributes.some(prop => styleObj[prop] != curStyle[prop])) {
+                        styleAttributes.forEach(prop => scroller.style[prop] = curStyle[prop])
+                    }
+                    if (dataFixedClass && !dataFixed.classList.contains(dataFixedClass)) {
+                        dataFixed.classList.add(dataFixedClass);
+                    }
+                } else {
+                    // 去重避免重复修改style和class
+                    let curStyle = scroller.getAttribute('style') || '';
+                    if (curStyle !== view.originalStyle) {
+                        scroller.setAttribute('style', view.originalStyle)
+                    }
+                    if (dataFixedClass && dataFixed.classList.contains(dataFixedClass)) {
+                        dataFixed.classList.remove(dataFixedClass);
+                    }
+                }
+            }
+        }
+
+
+        function init() {
+            setFixedParentHeight()
+            scrollHandle()
+            window.addEventListener('scroll', scrollHandle)
+        }
+        init()
+    </script>
+</body>
+</html>
