@@ -6,10 +6,12 @@ const Request = require('./request')
 const HTTPPORT = 8001;
 const SSLPORT = 8002;
 const HOST = '0.0.0.0';
+const suffixReg = /^\/?.+\.([^\/\s]+?)$/;
 const credentials = {
     key: fs.readFileSync(path.resolve(__dirname, './certificate/private.pem')),
     cert: fs.readFileSync(path.resolve(__dirname, './certificate/file.crt'))
 };
+
 
 const requestListener = (req, res) => {
     const request = new Request(req);
@@ -22,7 +24,32 @@ const requestListener = (req, res) => {
         `path< ${request.path} >`,
         `querystring< ${request.querystring} >`
     )
-    let filePath = /^\/?.+\.([^\/\s]+?)$/.test(request.path) ? request.path : request.path + '.html'
+    if (request.path === '/api/file') {
+        let fileData = []
+        fs.opendir(path.resolve(__dirname, '../'), async (err, dir) => {
+            for await (const dirent of dir) {
+            console.log(dirent.name);
+            fileData.push({
+                name: dirent.name,
+                path: dirent.path,
+                isFile: dirent.isFile(),
+                isDirectory: dirent.isDirectory(),
+            })
+            }
+            console.log(JSON.stringify(fileData))
+
+            res.writeHead(200, { 'Content-Type': 'application/json;charset=UTF-8' });
+            res.write(JSON.stringify(fileData));
+            res.end();
+        })
+        
+        return
+    }
+
+    let filePath = request.path === '/'
+        ? 'index.html'
+        : suffixReg.test(request.path) ? request.path : request.path + '.html';
+    
     fs.readFile(path.resolve(__dirname, '../' + filePath), (err, data) => {
         if(err){ 
             console.log(err);
