@@ -1,13 +1,27 @@
 const http = require('http')
+const https = require('https')
 const fs = require('fs')
 const path = require('path')
 const Request = require('./request')
-const PORT = 8001;
+const HTTPPORT = 8001;
+const SSLPORT = 8002;
 const HOST = '0.0.0.0';
+const credentials = {
+    key: fs.readFileSync(path.resolve(__dirname, './certificate/private.pem')),
+    cert: fs.readFileSync(path.resolve(__dirname, './certificate/file.crt'))
+};
 
-const server = http.createServer((req,res) => {
+const requestListener = (req,res) => {
     const request = new Request(req);
-    console.log(request.path, request.host, request.hostname, request.url, request.querystring)
+    console.log(
+        `protocol=${request.protocol};`,
+        `host=${request.host};`,
+        `host=${request.host};`,
+        `hostname=${request.hostname};`,
+        `url=${request.url};`,
+        `path=${request.path};`,
+        `querystring=${request.querystring}`
+    )
     let filePath = /^\/?.+\.([^\/\s]+?)$/.test(request.path) ? request.path : request.path + '.html'
     fs.readFile(path.resolve(__dirname, '../' + filePath), (err, data) => {
         if(err){ 
@@ -20,7 +34,12 @@ const server = http.createServer((req,res) => {
             res.end(); 
         }
     })
-})
+}
 
-server.listen(PORT, HOST);
-console.log(`localhost:${PORT}`)
+const httpServer = http.createServer(requestListener)
+const httpsServer = https.createServer(credentials, requestListener)
+
+httpServer.listen(HTTPPORT, HOST);
+httpsServer.listen(SSLPORT, HOST);
+console.log(`http://localhost:${HTTPPORT}`)
+console.log(`https://localhost:${SSLPORT}`)
