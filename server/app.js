@@ -11,16 +11,16 @@ const credentials = {
     cert: fs.readFileSync(path.resolve(__dirname, './certificate/file.crt'))
 };
 
-const requestListener = (req,res) => {
+const requestListener = (req, res) => {
     const request = new Request(req);
     console.log(
-        `protocol=${request.protocol};`,
-        `host=${request.host};`,
-        `host=${request.host};`,
-        `hostname=${request.hostname};`,
-        `url=${request.url};`,
-        `path=${request.path};`,
-        `querystring=${request.querystring}`
+        `protocol< ${request.protocol} >`,
+        `host< ${request.host} >`,
+        `host< ${request.host} >`,
+        `hostname< ${request.hostname} >`,
+        `url< ${request.url} >`,
+        `path< ${request.path} >`,
+        `querystring< ${request.querystring} >`
     )
     let filePath = /^\/?.+\.([^\/\s]+?)$/.test(request.path) ? request.path : request.path + '.html'
     fs.readFile(path.resolve(__dirname, '../' + filePath), (err, data) => {
