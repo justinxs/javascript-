@@ -11,9 +11,32 @@ const credentials = {
     key: fs.readFileSync(path.resolve(__dirname, './certificate/private.pem')),
     cert: fs.readFileSync(path.resolve(__dirname, './certificate/file.crt'))
 };
+const ignoreDirs = ['.git', '.gitignore', '.vscode', 'favicon.ico', 'server']
 
+let dirTreeCache = null;
+const getDirTree = async (fPath = '') => {
+    fPath = fPath ? fPath[0] === '/' ? fPath : `/${fPath}` : '/'
+    let tree = []
+    const dir = await fs.promises.opendir(path.resolve(__dirname, '..' + fPath));
+    for await (const dirent of dir) {
+        let treeItem = {
+            name: dirent.name,
+            path: `${fPath === '/' ? '' : fPath}/${dirent.name}`,
+            isFile: dirent.isFile(),
+            isDirectory: dirent.isDirectory()
+        }
+        if (!ignoreDirs.includes(treeItem.name)) {
+            tree.push(treeItem)
+            if (treeItem.isDirectory) {
+                treeItem.child = await getDirTree(treeItem.path)
+            }
+        }
+    }
+    
+    return tree
+}
 
-const requestListener = (req, res) => {
+const requestListener = async (req, res) => {
     const request = new Request(req);
     console.log(
         `protocol< ${request.protocol} >`,
@@ -25,25 +48,27 @@ const requestListener = (req, res) => {
         `querystring< ${request.querystring} >`
     )
     if (request.path === '/api/file') {
-        let fileData = []
-        fs.opendir(path.resolve(__dirname, '../'), async (err, dir) => {
-            for await (const dirent of dir) {
-            console.log(dirent.name);
-            fileData.push({
-                name: dirent.name,
-                path: dirent.path,
-                isFile: dirent.isFile(),
-                isDirectory: dirent.isDirectory(),
-            })
+        let data = null;
+        try {
+            if (!dirTreeCache) {
+                dirTreeCache = await getDirTree('/')
             }
-            console.log(JSON.stringify(fileData))
-
-            res.writeHead(200, { 'Content-Type': 'application/json;charset=UTF-8' });
-            res.write(JSON.stringify(fileData));
-            res.end();
-        })
-        
-        return
+            data = {
+                code: 200,
+                data: dirTreeCache,
+                msg: ''
+            }
+        } catch (error) {
+            console.log('tree error', error)
+            data = {
+                code: 500,
+                data: null,
+                msg: error.message
+            }
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json;charset=UTF-8' });
+        res.write(JSON.stringify(data));
+        return res.end();
     }
 
     let filePath = request.path === '/'
