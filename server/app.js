@@ -32,7 +32,7 @@ const getDirTree = async (fPath = '') => {
             }
         }
     }
-    
+
     return tree
 }
 
@@ -75,7 +75,7 @@ const requestListener = async (req, res) => {
         ? 'index.html'
         : suffixReg.test(request.path) ? request.path : request.path + '.html';
     
-    fs.readFile(path.resolve(__dirname, '../' + filePath), (err, data) => {
+    fs.readFile(path.resolve(__dirname, '../' + decodeURIComponent(filePath)), (err, data) => {
         if(err){ 
             console.log(err);
             res.writeHead(200, { 'Content-Type': 'text/html' });

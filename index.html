@@ -5,18 +5,50 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <title>预览</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        a {
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
-        app
+        
     </div>
 
     <script>
+        const getTreeView = (treeData, container) => {
+            container = container || document.createElement('div')
+            if (Array.isArray(treeData)) {
+                treeData.forEach(item => {
+                    if (item.isFile) {
+                        const link = document.createElement('a')
+                        link.href = item.path
+                        link.innerText = item.name
+                        container.appendChild(link)
+                    } else {
+                        const childContainer = document.createElement('div')
+                        const title = document.createElement('h3')
+                        title.innerText = item.name;
+                        childContainer.appendChild(title)
+                        container.appendChild(getTreeView(item.child, childContainer))
+                    }
+                });
+            }
+            
+            return container
+        }
         const xhr = new XMLHttpRequest()
         xhr.onload = () => {
             if (xhr.readyState === xhr.DONE) {
                 if (xhr.status === 200) {
-                    console.log(JSON.parse(xhr.response || xhr.responseText))
+                    let treeData = JSON.parse(xhr.response || xhr.responseText).data
+                    const treeView = getTreeView(treeData)
+                    document.getElementById('app').appendChild(treeView)
                 }
             }
         }
