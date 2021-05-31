@@ -47,11 +47,18 @@ const requestListener = async (req, res) => {
         `path< ${request.path} >`,
         `querystring< ${request.querystring} >`
     )
+    console.log(JSON.stringify({
+        'remoteAddress': req.connection.remoteAddress,
+        'X-Real-IP': req.headers['X-Real-IP'],
+        'X-Forwarded-For': req.headers['X-Forwarded-For']
+    }))
     if (request.path === '/api/file') {
         let data = null;
         try {
-            if (!dirTreeCache) {
+            if (!dirTreeCache || +request.query.reload) {
                 dirTreeCache = await getDirTree('/')
+            } else {
+                console.log('dirTreeCache')
             }
             data = {
                 code: 200,

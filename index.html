@@ -34,6 +34,7 @@
                         const childContainer = document.createElement('div')
                         const title = document.createElement('h3')
                         title.innerText = item.name;
+                        childContainer.classList.add('directory')
                         childContainer.appendChild(title)
                         container.appendChild(getTreeView(item.child, childContainer))
                     }
@@ -52,8 +53,24 @@
                 }
             }
         }
-        xhr.open('GET', '/api/file')
+        xhr.open('GET', `/api/file?reload=${~location.search.indexOf('reload') ? 1 : 0}`)
         xhr.send()
+
+
+
+        fetch(`/api/file?reload=${~location.search.indexOf('reload') ? 1 : 0}`, {
+            method: 'GET'
+        }).then(res =>{
+            console.log('headers', res.headers)
+            console.log('ok', res.ok)
+            console.log('redirected', res.redirected)
+            console.log('status', res.status)
+            console.log('statusText', res.statusText)
+            console.log('type', res.type)
+            console.log('url', res.url)
+            console.log('body', res.body)
+            return res.json()
+        }).then(data => console.log(data))
     </script>
 </body>
 </html>
