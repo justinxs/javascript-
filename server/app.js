@@ -37,6 +37,16 @@ const getDirTree = async (fPath = '') => {
 }
 
 const requestListener = async (req, res) => {
+    console.log(JSON.stringify({
+        'remoteAddress': req.connection.remoteAddress,
+        'X-Real-IP': req.headers['x-real-ip'] || req.headers['X-Real-IP'],
+        'X-Forwarded-For': req.headers['x-forwarded-for'] || req.headers['X-Forwarded-For'],
+        'X-NginX-Proxy': req.headers['x-nginx-proxy'] || req.headers['X-NginX-Proxy'],
+        'X-Host': req.headers['x-host'] || req.headers['X-Host'],
+    }))
+    console.log(req.headers)
+
+
     const request = new Request(req);
     console.log(
         `protocol< ${request.protocol} >`,
@@ -47,11 +57,7 @@ const requestListener = async (req, res) => {
         `path< ${request.path} >`,
         `querystring< ${request.querystring} >`
     )
-    console.log(JSON.stringify({
-        'remoteAddress': req.connection.remoteAddress,
-        'X-Real-IP': req.headers['X-Real-IP'],
-        'X-Forwarded-For': req.headers['X-Forwarded-For']
-    }))
+    
     if (request.path === '/api/file') {
         let data = null;
         try {
