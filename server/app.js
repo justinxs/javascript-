@@ -6,7 +6,7 @@ const Request = require('./request')
 const HTTPPORT = 8001;
 const SSLPORT = 8002;
 const HOST = '0.0.0.0';
-const suffixReg = /^\/?.+\.([^\/\s]+?)$/;
+const suffixReg = /^\/?.+\.([^\/\s\.]+?)$/;
 const credentials = {
     key: fs.readFileSync(path.resolve(__dirname, './certificate/private.pem')),
     cert: fs.readFileSync(path.resolve(__dirname, './certificate/file.crt'))
