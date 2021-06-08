@@ -7,3 +7,36 @@
 // v12.7.0	            Introduce "exports" package.json field as a more powerful alternative to the classic "main" field.（添加exports字段，扩展main导出入口）
 // v12.0.0	            Add support for ES modules using .js file extension via package.json "type" field.（package.json type=module或者命令行--input-type=module字段支持es 模块）
 
+// npm 包管理配置文件 package.json
+// node_modules 安装包文件夹
+
+
+// import 声明 只允许用于 es modules模块环境                                       import m from './esmodule.mjs'
+// 在es modules环境中引入 commonjs包，module.exports 作为 default导出              import c from './commonjs.cjs'
+// require方法 总是将文件当作 commonjs文件 处理，而且不能引入 es modules文件         const c = require('./commonjs.cjs')
+// 动态引入 import() 支持在 commonjs模块环境 中引入 es modules包                    const m = import('./esmodule.mjs')
+
+
+// 判断模块系统  commonjs 和 es modules
+
+// 以下行为会将文件当作 es modules 处理执行 （require 不能引入 es modules，用 import() 代替）
+// 1、.mjs 后缀的文件  import e from './es.mjs'.
+// 2、.js 后缀的文件并且package.json中声明 type 字段等于 module  import e from './test.js'.
+// 3、命令行声明 type 字段 --input-type=module
+
+
+// nodejs 默认是以 commonjs 模块处理，主动声明使用 commonjs模块系统 如下
+// 1、import c from './commonjs.cjs'
+// 2、import c from './commonjs.js'，package.json中声明 type 字段等于 commonjs
+// 3、命令行声明 type 字段 --input-type=commonjs
+
+
+// .js .cjs .mjs /  不同的文件后缀以及 package.json文件决定nodejs 以何种方式处理它
+
+// .mjs文件会一直作为 es modules 文件处理，忽略 package.json 中type字段的声明，即使 type = commonjs
+// .cjs文件会一直作为 commonjs 文件处理，忽略 package.json 中type字段的声明，即使 type = module
+// .js文件处理方式：
+// 1、所处目录没有 package.json配置，继承上一级的模块系统，默认 commonjs
+// 2、有package.json，根据配置的 type 字段决定其模块系统
+// type = module，.cjs 作为commonjs处理，其他都是 es modules
+// type = commonjs，.mjs 作为 es modules处理，其他都是 commonjs
