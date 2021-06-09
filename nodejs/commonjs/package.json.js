@@ -40,3 +40,9 @@
 // 2、有package.json，根据配置的 type 字段决定其模块系统
 // type = module，.cjs 作为commonjs处理，其他都是 es modules
 // type = commonjs，.mjs 作为 es modules处理，其他都是 commonjs
+
+
+// 包的入口
+// package.json 有两个字段决定外部引入自身的入口 main 和 exports
+// main 和 exports 同时存在，exports 优先 main 入口，但在低版本nodejs中，只支持 main 入口
+
