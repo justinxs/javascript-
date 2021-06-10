@@ -1,9 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 
+        <meta> 元素可用于提供 名称-值 对形式的文档元数据，name 属性为元数据条目提供名称，而 content 属性提供值
+
+        如果设置了 name 属性，meta 元素提供的是文档级别（document-level）的元数据，应用于整个页面。
+        如果设置了 http-equiv 属性，meta 元素则是编译指令，提供的信息与类似命名的HTTP头部相同。
+        如果设置了 charset 属性，meta 元素是一个字符集声明，告诉文档使用哪种字符编码。
+        如果设置了 itemprop 属性，meta 元素提供用户定义的元数据
+
+
+        application-name：网页中所运行的应用程序的名称。
+        author：文档作者的名字。
+        description：一段简短而精确的、对页面内容的描述。一些浏览器，比如 Firefox 和 Opera，将其用作书签的默认描述。
+        generator：生成此页面的软件的标识符（identifier）。
+        keywords：与页面内容相关的关键词，使用逗号分隔。
+        referrer：控制由当前文档发出的请求的 HTTP Referer 请求头。
+            no-referrer	不发送 HTTP Referer 请求头。
+            origin	只发送当前文档的 origin。
+            no-referrer-when-downgrade	如果请求目标与当前页面一样安全或者更加安全（HTTP(S)→HTTPS），则发送完整 URL；如果请求目标更加不安全（HTTPS→HTTP），则不发送  referrer。这是默认行为。
+            origin-when-cross-origin	对同源请求发送完整 URL（不含 URL 参数），其他情况下，只发送 origin。
+            same-origin	对同源请求发送完整 URL（不含 URL 参数），其他情况下，请求不包含 referrer 请求头。
+            strict-origin	如果请求目标与当前页面一样安全或者更加安全（HTTP(S)→HTTPS），则发送 origin；如果请求目标更加不安全（HTTPS→HTTP），则不发送  referrer。
+            strict-origin-when-cross-origin	对同源请求发送完整 URL（不含 URL 参数）；其他情况下，如果请求目标与当前页面一样安全或者更加安全（HTTP(S)→HTTPS），则发送 origin；如果请求目标更加不安全（HTTPS→HTTP），则不发送  referrer。
+            unsafe-URL	对同源请求和跨源请求发送完整 URL（不含 URL 参数）
+        
+        creator：当前文档的创建者，例如某个组织或者机构。如果有不止一个创建者，则应当使用多个名称为 creator 的 <meta> 元素。（而不是像关键词一样使用逗号分隔：关键词不应包含逗号，但创建者名称可能含有逗号。）
+        googlebot：robots 的替代名称，只被 Googlebot（Google 的网页爬虫/索引搜寻器）使用。
+        publisher：当前文档的发布者/出版者。
+        robots：爬虫、协作搜寻器，或者“机器人”，对此页面的处理行为，或者说，应当遵守的规则。是一个使用逗号分隔的、由下列值构成的列表：
+            index	                 允许机器人索引此页面（默认）。	所有爬虫
+            noindex	                 要求机器人不索引此页面。	所有爬虫
+            follow	                 允许机器人跟随此页面上的链接（默认）。	所有爬虫
+            nofollow	             要求机器人不跟随此页面上的链接。	所有爬虫
+            all	                     与 index, follow 等价	Google
+            none	                 与 noindex, nofollow 等价	Google
+            noarchive	             要求搜索引擎不缓存页面内容。	Google、Yahoo、Bing
+            nosnippet	             Prevents displaying any description of the page in search engine results.	Google、Bing
+            noimageindex	         Requests this page not to appear as the referring page of an indexed image.	Google
+            nocache	                 noarchive 的替代名称。	Bing
+        
+        
+     -->
+    <!-- 声明文档使用的字符编码 -->
+    <meta charset="utf-8">
+
+
+    <!-- 页面描述 -->
+    <meta name="description" content="网页描述"/>
+    <!-- 页面关键词 -->
+    <meta name="keywords" content="seo"/>
+    <!-- 网页作者 -->
+    <meta name="author" content="name, email@gmail.com"/>
+    <!-- 搜索引擎抓取 -->
+    <meta name="robots" content="index,follow"/>
+    <!-- 理想视口 -->
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    
+    <!-- 添加智能 App 广告条 Smart App Banner（iOS 6+ Safari） -->
+    <meta name="apple-itunes-app" content="app-id=myAppStoreID, affiliate-data=myAffiliateData, app-argument=myURL">
+    <!-- 设置苹果工具栏颜色 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <!-- 启用360浏览器的极速模式(webkit) -->
+    <meta name="renderer" content="webkit">
+     <!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓 -->
+    <meta name="HandheldFriendly" content="true">
+    <!-- 微软的老式浏览器 -->
+    <meta name="MobileOptimized" content="320">
+    <!-- uc强制竖屏 -->
+    <meta name="screen-orientation" content="portrait">
+    <!-- QQ强制竖屏 -->
+    <meta name="x5-orientation" content="portrait">
+    <!-- UC强制全屏 -->
+    <meta name="full-screen" content="yes">
+    <!-- QQ强制全屏 -->
+    <meta name="x5-fullscreen" content="true">
+    <!-- UC应用模式 -->
+    <meta name="browsermode" content="application">
+    <!-- QQ应用模式 -->
+    <meta name="x5-page-mode" content="app">
+    <!-- windows phone 点击无高光 -->
+    <meta name="msapplication-tap-highlight" content="no">
+
+
+    <!-- 优先使用 IE 最新版本和 Chrome -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <!-- 不让百度转码 -->
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <!-- 设置页面不缓存 -->
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+
     <title>预览</title>
     <style>
         * {

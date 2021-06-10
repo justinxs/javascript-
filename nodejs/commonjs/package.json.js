@@ -43,6 +43,43 @@
 
 
 // 包的入口
-// package.json 有两个字段决定外部引入自身的入口 main 和 exports
+// package.json 有两个字段决定外部引入的入口 main 和 exports
 // main 和 exports 同时存在，exports 优先 main 入口，但在低版本nodejs中，只支持 main 入口
+
+// {
+//     "name": "my-mod",
+//     "main": "./lib/index.js",
+//     "exports": {
+//       ".": "./lib/index.js",
+//       "./lib": "./lib/index.js",
+//       "./lib/*": "./lib/*.js",
+//       "./feature": "./feature/index.js",
+//       "./feature/*": "./feature/*.js",
+//       "./package.json": "./package.json",
+//       "./features/private-internal/*": null,
+//       "./feature": {
+//             "import": "./main-module.mjs",
+//             "require": "./main-require.cjs",
+//             "node": "./feature-node.js",
+//             "default": "./feature.js"
+//       }
+//     }
+// }
+
+
+// 子路径的导入
+
+// import #dep 导入外部依赖包dep-node-native，其他环境默认导入./dep-polyfill.js
+// {
+//     "imports": {
+//       "#dep": {
+
+//         "node": "dep-node-native",
+//         "default": "./dep-polyfill.js"
+//       }
+//     },
+//     "dependencies": {
+//       "dep-node-native": "^1.0.0"
+//     }
+// }
 
