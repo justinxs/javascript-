@@ -59,8 +59,6 @@
     
     <!-- 添加智能 App 广告条 Smart App Banner（iOS 6+ Safari） -->
     <meta name="apple-itunes-app" content="app-id=myAppStoreID, affiliate-data=myAffiliateData, app-argument=myURL">
-    <!-- 设置苹果工具栏颜色 -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
     <!-- 启用360浏览器的极速模式(webkit) -->
     <meta name="renderer" content="webkit">
      <!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓 -->
@@ -141,14 +139,14 @@
                 }
             }
         }
-        xhr.open('GET', `/api/file?reload=${~location.search.indexOf('reload') ? 1 : 0}`)
+        xhr.open('GET', `/api/file?reload=${~location.search.indexOf('reload') && 1}`)
         xhr.send()
 
 
 
-        fetch(`/api/file?reload=${~location.search.indexOf('reload') ? 1 : 0}`, {
+        fetch(`/api/file?reload=${~location.search.indexOf('reload') && 1}`, {
             method: 'GET'
-        }).then(res =>{
+        }).then(res => {
             console.log('headers', res.headers)
             console.log('ok', res.ok)
             console.log('redirected', res.redirected)
