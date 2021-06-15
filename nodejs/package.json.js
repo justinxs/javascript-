@@ -83,3 +83,23 @@
 //     }
 // }
 
+
+
+
+
+
+
+
+
+// module 模式没有 require 方法，需要完整的路径，js 被当作是 module 包处理
+// require 模式不能使用 import，require 不能导入 mjs 包
+
+
+
+
+
+
+
+// import pkg from 'es'
+import pkeg from 'es/module'
+import cm from 'commonjs'
