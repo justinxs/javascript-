@@ -96,10 +96,14 @@
 
 
 
-
-
-
-
-// import pkg from 'es'
+import pkg from 'es'
 import pkeg from 'es/module'
 import cm from 'commonjs'
+import et from 'entry'
+et()
+
+
+// const pkeg = require('es/module')
+// const cm = require('commonjs')
+// const et = import('entry')
+// et.then(m => m.default())
